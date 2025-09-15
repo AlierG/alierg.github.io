@@ -1,0 +1,473 @@
+
+                <!DOCTYPE html>
+                <html lang="zh">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>内容抽卡触发页</title>
+                  <style>
+                    *,
+                    *::before,
+                    *::after {
+                      box-sizing: border-box;
+                      margin: 0;
+                    }
+                    .iframe-outer {
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      bottom: 0;
+                      right: 0;
+                      display: flex;
+                      justify-content: center;
+                      background-color: #E0E0E0;
+                    }
+                    .iframe-wrapper {
+                      width: 100%;
+                      height: 100%;
+                      margin: 0 auto;
+                      transform-origin: center top;
+                      flex-shrink: 0;
+                    }
+                    #dynamicIframe {
+                      border: none;
+                      width: 100%;
+                      height: 100%;
+                    }
+                  </style>
+                  <script>
+                const width = 402
+                const height = 874
+                const resolutionRatio = width && height ? width / height : 1
+                const pageNameMap = {
+                  'splash_page': '启动页',
+    'invitation_code_entry': '邀请码输入',
+    'invitation_code_info': '邀请码获取说明',
+    'citywalk_main': 'Citywalk 路段主页',
+    'content_gacha_trigger': '内容抽卡触发页',
+    'content_detail': '内容详情与回复',
+    'content_upload': '内容上传页',
+    'user_profile': '个人中心',
+    'my_cards': '我的卡册',
+    'gift_exchange': '礼品兑换',
+    'points_history': '积分历史',
+    'citywalk_info_guide': 'Citywalk 信息与指南',
+    'support_feedback': '帮助与反馈'
+                }
+                function setIframeSize(w, h) {
+                  const currentContainerRadio = w / h
+                  let widthValue = w
+                  let heightValue = h
+                  let zoom = 1
+                  if (currentContainerRadio > resolutionRatio) {
+                    widthValue = h * resolutionRatio
+                    heightValue = h
+                  } else {
+                    widthValue = w
+                    heightValue = w / resolutionRatio
+                  }
+                  zoom = width ? widthValue / width : 1
+                  return {
+                    width: widthValue / zoom + 'px',
+                    height: heightValue / zoom + 'px',
+                    zoom,
+                  }
+                }
+                function adjustIframeSize() {
+                  const iframeWrapper = document.querySelector(".iframe-wrapper")
+                  const { width, height, zoom } = setIframeSize(window.innerWidth, window.innerHeight)
+                  iframeWrapper.style.height = height
+                  iframeWrapper.style.width = width
+                  iframeWrapper.style.transform = 'scale(' + zoom + ')'
+                }
+                function sanitizeFilename(name) {
+                  return name.replace(/[\/:*?"<>|]/g, '_')
+                }
+                function handlePostMessage(event) {
+                  if (!event.data) {
+                    return
+                  }
+                  const { type, targetPageId } = event.data
+                  const targetPageName = pageNameMap[targetPageId]
+                  if (type === "iframeNavigation" && targetPageId && targetPageName) {
+                    window.location.href = targetPageName + '.html'
+                  }
+                }
+                window.addEventListener('message', handlePostMessage)
+                window.onload = adjustIframeSize
+                window.onresize = adjustIframeSize
+                window.onunload = () => {
+                  window.removeEventListener('message', handlePostMessage)
+                }
+              </script>
+                </head>
+                <body>
+                  <div class="iframe-outer">
+                    <div class="iframe-wrapper">
+                      <iframe id="dynamicIframe" srcdoc='<html lang="zh-CN" data-theme="business"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>内容抽卡触发页</title>
+    <link href="./assets/static/uxbot/daisyui@5.css" rel="stylesheet" type="text/css">
+    <script src="./assets/static/uxbot/tailwind-browser@4.js"></script>
+    <link href="./assets/static/uxbot/daisyui-themes.css" rel="stylesheet" type="text/css">
+    <script src="./assets/3/3.1.1/iconify.min.js"></script>
+    <style>
+/* CSS code for common usage */
+/* daisyUI Theme Variables Customization
+ * Based on the business theme and UI guidance requirements,
+ * customize only the CSS variables that need to be different from the theme defaults.
+ * Available theme variables for customization:
+ */
+
+/* Only modify if different from chosen theme defaults */
+:root {
+  /* Business theme with deep grey base and light accents */
+  --color-primary: rgba(59, 130, 246, 0.8); /* Slightly desaturated blue */
+  --color-primary-content: rgba(255, 255, 255, 1); /* White text on primary */
+  --color-secondary: rgba(79, 70, 229, 0.8); /* Desaturated indigo */
+  --color-secondary-content: rgba(255, 255, 255, 1);
+  --color-accent: rgba(59, 130, 246, 0.8); /* Same as primary for consistency */
+  --color-accent-content: rgba(255, 255, 255, 1);
+
+  /* Deep grey backgrounds following Material Design Dark Theme */
+  --color-base-100: rgba(33, 37, 41, 1); /* #212529 deep charcoal for cards */
+  --color-base-200: rgba(26, 29, 33, 1); /* #1A1D21 darker for main content */
+  --color-base-300: rgba(55, 65, 81, 1); /* #374151 lighter grey for borders */
+  --color-base-content: rgba(248, 250, 252, 1); /* #F8FAFC very light grey for main text */
+
+  /* Semantic colors optimized for dark backgrounds */
+  --color-success: rgba(34, 197, 94, 1); /* #22C55E green for success states */
+  --color-success-content: rgba(255, 255, 255, 1);
+  --color-warning: rgba(251, 191, 36, 1); /* #FBBF24 yellow for warnings */
+  --color-warning-content: rgba(0, 0, 0, 1);
+  --color-error: rgba(239, 68, 68, 1); /* #EF4444 red for errors */
+  --color-error-content: rgba(255, 255, 255, 1);
+  --color-info: rgba(59, 130, 246, 1); /* #3B82F6 blue for info */
+  --color-info-content: rgba(255, 255, 255, 1);
+
+  /* Border radius for mobile-friendly touch targets */
+  --radius-box: 0.5rem; /* 8px rounded corners */
+  --radius-field: 0.5rem;
+  --radius-selector: 0.5rem;
+
+  /* Border for subtle separations */
+  --border: 1px;
+}
+
+/* Mobile-specific optimizations */
+.mobile-container {
+  max-width: 402px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: var(--color-base-200);
+}
+
+/* Touch-friendly buttons and interactive elements */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Secondary text color for metadata */
+.text-secondary-gray {
+  color: rgba(156, 163, 175, 1); /* #9CA3AF lighter grey for secondary text */
+}
+
+/* Safe area padding for mobile devices */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-base-300);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-base-content);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Ensure proper contrast for interactive elements */
+.btn, .input, .select, .textarea {
+  border-color: var(--color-base-300);
+}
+
+.btn:hover, .input:focus, .select:focus, .textarea:focus {
+  border-color: var(--color-primary);
+}
+
+/* Card elevation for dark theme */
+.card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+</style> <style>
+/* Custom CSS styles for the page */
+#GachaAnimationSection {
+    background-color: var(--color-base-200);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+</style>
+  <script src="./assets/static/uxbot/25_6/holder.js"></script></head>
+  <body class="bg-base-200 overflow-hidden">
+    <main>
+      <section id="GachaAnimationSection" class="relative h-screen w-screen flex flex-col items-center justify-center p-4">
+        <div class="absolute top-0 left-0 right-0 p-4 z-10 flex items-center justify-center safe-area-top">
+          <h1 data-type="text" class="text-lg font-semibold text-base-content">
+            外滩十八号
+          </h1>
+          <button data-type="button" class="btn btn-ghost btn-sm absolute right-4 top-4 text-base-content/70" onclick="navigateTo(&#39;citywalk_main&#39;)">
+            <span data-type="text">取消</span>
+          </button>
+        </div>
+        <div class="flex flex-col items-center justify-center h-full w-full gap-8">
+          <div id="lottie-container" data-type="container" class="relative lottie-container spark-custom-lottie-container">
+            <!-- 星星背景层 -->
+            <div class="absolute inset-0 w-80 h-80 rounded-full overflow-hidden">
+              <!-- 大星星层 -->
+              <div class="stars-layer-1"></div>
+              <!-- 中星星层 -->
+              <div class="stars-layer-2"></div>
+              <!-- 小星星层 -->
+              <div class="stars-layer-3"></div>
+              <!-- 闪烁光环 -->
+              <div class="glow-ring"></div>
+            </div>
+            <!-- 中心抽卡图片 --><img id="lottie-placeholder" src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/user-image/2025/9/14/a6c0be57-443a-417a-8daf-b6b05843af3b.jpeg" alt="抽卡动画占位符" class="relative z-10 rounded-full w-64 h-64 md:w-80 md:h-80 object-cover transition-all duration-500 lottie-placeholder spark-custom-lottie-placeholder shadow-2xl border-4 border-primary/30 lottie-placeholder"><!-- 前景闪烁效果 -->
+            <div class="absolute inset-0 rounded-full sparkle-overlay"></div>
+          </div>
+          <div data-type="container" class="flex items-center justify-center gap-4 text-center h-8">
+            <span id="gacha-spinner" data-type="decorativeElement" class="loading loading-spinner text-primary"></span>
+            <p id="gacha-status-text" data-type="text" class="text-base-content text-lg">
+              正在抽取内容...
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script>
+/* JavaScript code for common usage, should be wrapped in a closure */
+(function() {
+  // Global app state
+  window.APP_GLOBALS = window.APP_GLOBALS || {};
+
+  // Navigation function for page transitions
+  window.navigateTo = function(targetPageId) {
+    // Trigger navigation to another page using the provided snippet
+    const isInIframe = window.self !== window.top;
+    const targetFileName = `${targetPageId}.html`;
+    
+    if (isInIframe) {
+      window.parent.postMessage({
+        type: &#39;iframeNavigation&#39;,
+        targetPageId: targetPageId
+      }, &#39;*&#39;);
+    } else {
+      window.location.href = targetFileName;
+    }
+  };
+
+  // Utility function to handle back navigation
+  window.handleBackNavigation = function() {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      navigateTo(&#39;citywalk_main&#39;);
+    }
+  };
+
+  // Function to show toast notifications
+  window.showToast = function(message, type = &#39;info&#39;) {
+    const toast = document.createElement(&#39;div&#39;);
+    toast.className = `toast toast-bottom toast-center z-50`;
+    toast.innerHTML = `<div class="alert alert-${type}"><span>${message}</span></div>`;
+    document.body.appendChild(toast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 3000);
+  };
+
+  // Smooth scroll to top function
+  window.scrollToTop = function() {
+    window.scrollTo({
+      top: 0,
+      behavior: &#39;smooth&#39;
+    });
+  };
+
+  // Function to update bottom dock active state
+  window.updateBottomDockActive = function(activeTabId) {
+    const dockItems = document.querySelectorAll(&#39;[data-section-id="common_bottom_dock"] .dock-item&#39;);
+    dockItems.forEach(item => {
+      if (item.dataset.tabId === activeTabId) {
+        item.classList.add(&#39;dock-item-active&#39;);
+      } else {
+        item.classList.remove(&#39;dock-item-active&#39;);
+      }
+    });
+  };
+
+  // Haptic feedback for mobile interactions
+  window.triggerHapticFeedback = function(intensity = &#39;medium&#39;) {
+    if (navigator.vibrate) {
+      const patterns = {
+        light: [10],
+        medium: [25],
+        heavy: [50]
+      };
+      navigator.vibrate(patterns[intensity] || patterns.medium);
+    }
+  };
+
+  // Location service helpers
+  window.APP_GLOBALS.locationService = {
+    getCurrentPosition: function() {
+      return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            position => resolve(position),
+            error => reject(error),
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+          );
+        } else {
+          reject(new Error(&#39;地理位置服务不可用&#39;));
+        }
+      });
+    }
+  };
+
+  // Audio service for gacha effects
+  window.APP_GLOBALS.audioService = {
+    playGachaSound: function() {
+      // Placeholder for gacha sound effect
+      if (window.AudioContext || window.webkitAudioContext) {
+        try {
+          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
+          
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+          
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.3);
+        } catch (e) {
+          console.log(&#39;音频播放不可用&#39;);
+        }
+      }
+    }
+  };
+
+})();
+</script><script>
+/* JavaScript for this page */
+document.addEventListener(&#39;DOMContentLoaded&#39;, () => {
+    startGachaProcess();
+});
+
+function startGachaProcess() {
+    const lottiePlaceholder = document.getElementById(&#39;lottie-placeholder&#39;);
+    const statusText = document.getElementById(&#39;gacha-status-text&#39;);
+    const spinner = document.getElementById(&#39;gacha-spinner&#39;);
+
+    // 1. Initial State: Vibrate and play sound
+    if (window.triggerHapticFeedback) {
+        window.triggerHapticFeedback(&#39;heavy&#39;);
+    }
+    if (window.APP_GLOBALS &amp;&amp; window.APP_GLOBALS.audioService &amp;&amp; typeof window.APP_GLOBALS.audioService.playGachaSound === &#39;function&#39;) {
+        window.APP_GLOBALS.audioService.playGachaSound();
+    }
+
+    // 2. Simulate animation duration (e.g., 4 seconds)
+    setTimeout(() => {
+        // 3. Determine outcome
+        const isSuccess = Math.random() < 0.7; // 70% chance of success for demo purposes
+
+        if (spinner) {
+          spinner.style.display = &#39;none&#39;; // Hide spinner
+        }
+
+        if (isSuccess) {
+            // 4. Handle Success
+            if (lottiePlaceholder) {
+                lottiePlaceholder.src = &#39;https://placehold.co/300x300/22C55E/FFFFFF.png?text=Success!&#39;;
+                lottiePlaceholder.alt = &#39;抽卡成功动画&#39;;
+            }
+            if (statusText) {
+                statusText.textContent = "恭喜！抽中隐藏内容！";
+            }
+            
+            // Brief pause to show result, then navigate
+            setTimeout(() => {
+                navigateTo(&#39;content_detail&#39;);
+            }, 1500);
+
+        } else {
+            // 5. Handle Failure
+            if (lottiePlaceholder) {
+                lottiePlaceholder.src = &#39;https://placehold.co/300x300/EF4444/FFFFFF.png?text=Try+Again&#39;;
+                lottiePlaceholder.alt = &#39;抽卡失败动画&#39;;
+            }
+            if (statusText) {
+                statusText.textContent = "有点可惜，下次好运！";
+            }
+
+            // Brief pause to show result, then navigate
+            setTimeout(() => {
+                navigateTo(&#39;citywalk_main&#39;);
+            }, 2000);
+        }
+    }, 4000);
+}
+</script>
+  
+
+<script>
+    setTimeout(() => {
+      Holder.run({
+        domain: "placehold.co"
+      })
+    }, 100)
+  </script></body></html>'></iframe>
+                    </div>
+                  </div>
+
+                </body>
+                </html>
+            

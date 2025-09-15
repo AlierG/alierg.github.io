@@ -1,0 +1,787 @@
+
+                <!DOCTYPE html>
+                <html lang="zh">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>礼品兑换</title>
+                  <style>
+                    *,
+                    *::before,
+                    *::after {
+                      box-sizing: border-box;
+                      margin: 0;
+                    }
+                    .iframe-outer {
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      bottom: 0;
+                      right: 0;
+                      display: flex;
+                      justify-content: center;
+                      background-color: #E0E0E0;
+                    }
+                    .iframe-wrapper {
+                      width: 100%;
+                      height: 100%;
+                      margin: 0 auto;
+                      transform-origin: center top;
+                      flex-shrink: 0;
+                    }
+                    #dynamicIframe {
+                      border: none;
+                      width: 100%;
+                      height: 100%;
+                    }
+                  </style>
+                  <script>
+                const width = 402
+                const height = 874
+                const resolutionRatio = width && height ? width / height : 1
+                const pageNameMap = {
+                  'splash_page': '启动页',
+    'invitation_code_entry': '邀请码输入',
+    'invitation_code_info': '邀请码获取说明',
+    'citywalk_main': 'Citywalk 路段主页',
+    'content_gacha_trigger': '内容抽卡触发页',
+    'content_detail': '内容详情与回复',
+    'content_upload': '内容上传页',
+    'user_profile': '个人中心',
+    'my_cards': '我的卡册',
+    'gift_exchange': '礼品兑换',
+    'points_history': '积分历史',
+    'citywalk_info_guide': 'Citywalk 信息与指南',
+    'support_feedback': '帮助与反馈'
+                }
+                function setIframeSize(w, h) {
+                  const currentContainerRadio = w / h
+                  let widthValue = w
+                  let heightValue = h
+                  let zoom = 1
+                  if (currentContainerRadio > resolutionRatio) {
+                    widthValue = h * resolutionRatio
+                    heightValue = h
+                  } else {
+                    widthValue = w
+                    heightValue = w / resolutionRatio
+                  }
+                  zoom = width ? widthValue / width : 1
+                  return {
+                    width: widthValue / zoom + 'px',
+                    height: heightValue / zoom + 'px',
+                    zoom,
+                  }
+                }
+                function adjustIframeSize() {
+                  const iframeWrapper = document.querySelector(".iframe-wrapper")
+                  const { width, height, zoom } = setIframeSize(window.innerWidth, window.innerHeight)
+                  iframeWrapper.style.height = height
+                  iframeWrapper.style.width = width
+                  iframeWrapper.style.transform = 'scale(' + zoom + ')'
+                }
+                function sanitizeFilename(name) {
+                  return name.replace(/[\/:*?"<>|]/g, '_')
+                }
+                function handlePostMessage(event) {
+                  if (!event.data) {
+                    return
+                  }
+                  const { type, targetPageId } = event.data
+                  const targetPageName = pageNameMap[targetPageId]
+                  if (type === "iframeNavigation" && targetPageId && targetPageName) {
+                    window.location.href = targetPageName + '.html'
+                  }
+                }
+                window.addEventListener('message', handlePostMessage)
+                window.onload = adjustIframeSize
+                window.onresize = adjustIframeSize
+                window.onunload = () => {
+                  window.removeEventListener('message', handlePostMessage)
+                }
+              </script>
+                </head>
+                <body>
+                  <div class="iframe-outer">
+                    <div class="iframe-wrapper">
+                      <iframe id="dynamicIframe" srcdoc='<html lang="zh-CN" data-theme="business"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>礼品兑换</title>
+    <link href="./assets/static/uxbot/daisyui@5.css" rel="stylesheet" type="text/css">
+    <script src="./assets/static/uxbot/tailwind-browser@4.js"></script>
+    <link href="./assets/static/uxbot/daisyui-themes.css" rel="stylesheet" type="text/css">
+    <script src="./assets/3/3.1.1/iconify.min.js"></script>
+    <style>
+/* CSS code for common usage */
+/* daisyUI Theme Variables Customization
+ * Based on the business theme and UI guidance requirements,
+ * customize only the CSS variables that need to be different from the theme defaults.
+ * Available theme variables for customization:
+ */
+
+/* Only modify if different from chosen theme defaults */
+:root {
+  /* Business theme with deep grey base and light accents */
+  --color-primary: rgba(59, 130, 246, 0.8); /* Slightly desaturated blue */
+  --color-primary-content: rgba(255, 255, 255, 1); /* White text on primary */
+  --color-secondary: rgba(79, 70, 229, 0.8); /* Desaturated indigo */
+  --color-secondary-content: rgba(255, 255, 255, 1);
+  --color-accent: rgba(59, 130, 246, 0.8); /* Same as primary for consistency */
+  --color-accent-content: rgba(255, 255, 255, 1);
+
+  /* Deep grey backgrounds following Material Design Dark Theme */
+  --color-base-100: rgba(33, 37, 41, 1); /* #212529 deep charcoal for cards */
+  --color-base-200: rgba(26, 29, 33, 1); /* #1A1D21 darker for main content */
+  --color-base-300: rgba(55, 65, 81, 1); /* #374151 lighter grey for borders */
+  --color-base-content: rgba(248, 250, 252, 1); /* #F8FAFC very light grey for main text */
+
+  /* Semantic colors optimized for dark backgrounds */
+  --color-success: rgba(34, 197, 94, 1); /* #22C55E green for success states */
+  --color-success-content: rgba(255, 255, 255, 1);
+  --color-warning: rgba(251, 191, 36, 1); /* #FBBF24 yellow for warnings */
+  --color-warning-content: rgba(0, 0, 0, 1);
+  --color-error: rgba(239, 68, 68, 1); /* #EF4444 red for errors */
+  --color-error-content: rgba(255, 255, 255, 1);
+  --color-info: rgba(59, 130, 246, 1); /* #3B82F6 blue for info */
+  --color-info-content: rgba(255, 255, 255, 1);
+
+  /* Border radius for mobile-friendly touch targets */
+  --radius-box: 0.5rem; /* 8px rounded corners */
+  --radius-field: 0.5rem;
+  --radius-selector: 0.5rem;
+
+  /* Border for subtle separations */
+  --border: 1px;
+}
+
+/* Mobile-specific optimizations */
+.mobile-container {
+  max-width: 402px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: var(--color-base-200);
+}
+
+/* Touch-friendly buttons and interactive elements */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Secondary text color for metadata */
+.text-secondary-gray {
+  color: rgba(156, 163, 175, 1); /* #9CA3AF lighter grey for secondary text */
+}
+
+/* Safe area padding for mobile devices */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-base-300);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-base-content);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Ensure proper contrast for interactive elements */
+.btn, .input, .select, .textarea {
+  border-color: var(--color-base-300);
+}
+
+.btn:hover, .input:focus, .select:focus, .textarea:focus {
+  border-color: var(--color-primary);
+}
+
+/* Card elevation for dark theme */
+.card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+</style> <style>
+/* Custom styles for the gift exchange page */
+.redeem-btn:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+}
+
+/* Modal entrance animation */
+#success_modal[open] {
+    animation: fadeIn 0.3s ease-out;
+}
+
+#success_modal[open] .modal-box {
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(30px); opacity: 0.5; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Ensure navbar has a solid background when content is scrolled underneath */
+.navbar {
+    transition: background-color 0.3s ease;
+}
+
+/* Custom progress bar height */
+.progress.h-1 {
+    height: 0.25rem; /* 4px */
+}
+</style>
+  <script src="./assets/static/uxbot/25_6/holder.js"></script></head>
+  <body class="bg-base-200">
+    <div class="mobile-container flex flex-col min-h-screen">
+      <div data-section-id="common_drawer" data-section-type="common_section" class="drawer">
+  <input id="drawer-toggle" type="checkbox" class="drawer-toggle">
+  <div class="drawer-content">
+    <!-- Main content goes here -->
+  </div>
+  <div class="drawer-side">
+    <label for="drawer-toggle" aria-label="关闭侧边栏" class="drawer-overlay"></label>
+    <aside class="min-h-full w-80 bg-base-100 text-base-content">
+      <!-- Drawer header -->
+      <div class="flex items-center justify-between p-4 border-b border-base-300">
+        <h3 class="text-lg font-semibold">菜单</h3>
+        <label for="drawer-toggle" class="btn btn-ghost btn-sm btn-circle">
+          <span class="iconify" data-icon="heroicons:x-mark" data-width="20"></span>
+        </label>
+      </div>
+      
+      <!-- Navigation menu -->
+      <ul class="menu p-4 space-y-2">
+        <li>
+          <a onclick="navigateTo(&#39;citywalk_main&#39;)" class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200">
+            <span class="iconify" data-icon="heroicons:map" data-width="20"></span>
+            <span>Citywalk 路线</span>
+          </a>
+        </li>
+        <li>
+          <a onclick="navigateTo(&#39;content_upload&#39;)" class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200">
+            <span class="iconify" data-icon="heroicons:plus-circle" data-width="20"></span>
+            <span>上传内容</span>
+          </a>
+        </li>
+        <li>
+          <a onclick="navigateTo(&#39;my_cards&#39;)" class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200">
+            <span class="iconify" data-icon="heroicons:squares-2x2" data-width="20"></span>
+            <span>我的卡册</span>
+          </a>
+        </li>
+        <li>
+          <a onclick="navigateTo(&#39;user_profile&#39;)" class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200">
+            <span class="iconify" data-icon="heroicons:user" data-width="20"></span>
+            <span>个人中心</span>
+          </a>
+        </li>
+        
+        <div class="divider"></div>
+        
+        <li>
+          <a onclick="navigateTo(&#39;gift_exchange&#39;)" class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200">
+            <span class="iconify" data-icon="heroicons:gift" data-width="20"></span>
+            <span>礼品兑换</span>
+          </a>
+        </li>
+        <li>
+          <a onclick="navigateTo(&#39;points_history&#39;)" class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200">
+            <span class="iconify" data-icon="heroicons:chart-bar" data-width="20"></span>
+            <span>积分历史</span>
+          </a>
+        </li>
+        <li>
+          <a onclick="navigateTo(&#39;citywalk_info_guide&#39;)" class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200">
+            <span class="iconify" data-icon="heroicons:information-circle" data-width="20"></span>
+            <span>活动指南</span>
+          </a>
+        </li>
+        <li>
+          <a onclick="navigateTo(&#39;support_feedback&#39;)" class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200">
+            <span class="iconify" data-icon="heroicons:question-mark-circle" data-width="20"></span>
+            <span>帮助与反馈</span>
+          </a>
+        </li>
+      </ul>
+      
+      <!-- Drawer footer -->
+      <div class="absolute bottom-4 left-4 right-4 border-t border-base-300 pt-4">
+        <div class="text-center text-sm text-base-content opacity-70">
+          <p>Citywalk 探索版本 1.0</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<style>
+[data-section-id="common_drawer"] .drawer-side {
+  z-index: 50;
+}
+
+[data-section-id="common_drawer"] .drawer-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+[data-section-id="common_drawer"] aside {
+  background-color: var(--color-base-100);
+  border-right: 1px solid var(--color-base-300);
+}
+
+[data-section-id="common_drawer"] .menu a {
+  transition: all 0.2s ease;
+  color: var(--color-base-content);
+}
+
+[data-section-id="common_drawer"] .menu a:hover {
+  background-color: var(--color-base-200);
+  color: var(--color-primary);
+}
+
+[data-section-id="common_drawer"] .menu a:active {
+  transform: scale(0.98);
+}
+
+[data-section-id="common_drawer"] .divider {
+  border-color: var(--color-base-300);
+  margin: 1rem 0;
+}
+</style>
+
+<script>
+(function() {
+  // Drawer control functions
+  window.openDrawer = function() {
+    const drawerToggle = document.querySelector(&#39;#drawer-toggle&#39;);
+    if (drawerToggle) {
+      drawerToggle.checked = true;
+    }
+  };
+
+  window.closeDrawer = function() {
+    const drawerToggle = document.querySelector(&#39;#drawer-toggle&#39;);
+    if (drawerToggle) {
+      drawerToggle.checked = false;
+    }
+  };
+
+  window.toggleDrawer = function() {
+    const drawerToggle = document.querySelector(&#39;#drawer-toggle&#39;);
+    if (drawerToggle) {
+      drawerToggle.checked = !drawerToggle.checked;
+    }
+  };
+
+  // Close drawer when clicking on menu items
+  document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    const menuItems = document.querySelectorAll(&#39;[data-section-id="common_drawer"] .menu a&#39;);
+    
+    menuItems.forEach(item => {
+      item.addEventListener(&#39;click&#39;, function() {
+        // Close drawer after navigation
+        setTimeout(() => {
+          closeDrawer();
+        }, 100);
+      });
+    });
+
+    // Add haptic feedback to menu items
+    menuItems.forEach(item => {
+      item.addEventListener(&#39;touchstart&#39;, function() {
+        if (window.triggerHapticFeedback) {
+          window.triggerHapticFeedback(&#39;light&#39;);
+        }
+      });
+    });
+  });
+})();
+</script>
+      <div class="drawer-content flex flex-col flex-1">
+        <section id="gift_exchange_header" class="sticky top-0 z-30 bg-base-200/80 backdrop-blur-sm safe-area-top">
+          <div class="navbar px-4">
+            <div class="navbar-start">
+              <button class="btn btn-ghost btn-circle touch-target" onclick="navigateTo(&#39;user_profile&#39;)">
+                <span class="iconify" data-icon="heroicons:arrow-left" data-width="24"></span>
+              </button>
+            </div>
+            <div class="navbar-center">
+              <h1 class="text-lg font-semibold">礼品兑换</h1>
+            </div>
+            <div class="navbar-end w-12">
+              <!-- Placeholder for right-side actions -->
+            </div>
+          </div>
+        </section>
+        <main class="flex-1 overflow-y-auto p-4 pb-24">
+          <section id="gift_list" class="flex flex-col gap-6">
+            <!-- User Points Balance -->
+            <div class="card bg-base-100 shadow-md p-4 flex flex-col items-center text-center">
+              <span class="text-base-content/70 text-sm">当前可用积分</span>
+              <div class="text-4xl font-bold text-primary my-2">12,345</div>
+              <div class="flex gap-4 mt-1">
+                <button class="btn btn-xs btn-ghost text-accent" onclick="navigateTo(&#39;points_history&#39;)">
+                  <span class="iconify" data-icon="heroicons:clock" data-width="14"></span>
+                  积分历史</button><button class="btn btn-xs btn-ghost text-accent">
+                  <span class="iconify" data-icon="heroicons:trophy" data-width="14"></span>
+                  积分排行榜
+                </button>
+              </div>
+            </div>
+            <!-- Filter &amp; Title -->
+            <div class="flex justify-between items-center mt-2">
+              <h2 class="text-lg font-semibold">可兑换礼品</h2>
+              <div class="dropdown dropdown-end">
+                <button tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                  <span class="iconify" data-icon="heroicons:funnel" data-width="16"></span>
+                  筛选
+                </button>
+                <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-box z-[10] w-40 p-2 shadow-lg">
+                  <li><a>全部</a></li>
+                  <li><a>优惠券</a></li>
+                  <li><a>实物礼品</a></li>
+                </ul>
+              </div>
+            </div>
+            <!-- Gift Items Container -->
+            <div class="flex flex-col gap-4">
+              <!-- Gift Card 1 -->
+              <div data-repeatable="true" class="card bg-base-100 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                <div class="flex p-4 gap-4 items-center">
+                  <figure class="w-28 h-28 flex-shrink-0">
+                    <img src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/user-image/2025/9/14/2d4c0cbb-512a-470e-a1c4-14126d85aa35.png" alt="限量版马克杯" class="rounded-lg object-cover w-full h-full iln0jy spark-custom-iln0jy" id="iln0jy">
+                  </figure>
+                  <div class="flex flex-col justify-between flex-grow h-full gap-2">
+                    <h3 id="i2k8va" class="font-bold text-base-content leading-tight i2k8va spark-custom-i2k8va">
+                      限量版 熊猫马克杯
+                    </h3>
+                    <div class="flex items-baseline gap-1 text-primary font-semibold">
+                      <span class="iconify" data-icon="heroicons:star-solid" data-width="16"></span><span class="text-lg font-bold">8,000</span><span class="text-xs">积分</span>
+                    </div>
+                    <div>
+                      <div class="text-xs text-base-content/70">
+                        库存: 23/50
+                      </div>
+                      <progress value="46" max="100" class="progress progress-primary w-full h-1 mt-1"></progress>
+                    </div>
+                    <div class="text-right mt-1">
+                      <button class="btn btn-primary btn-sm px-6 redeem-btn" onclick="redeemGift(this, &#39;限量版 CityWalk 马克杯&#39;, &#39;https://placehold.co/112x112.png?text=CityWalk+Mug&#39;)">
+                        兑换
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Gift Card 2 -->
+              <div data-repeatable="true" class="card bg-base-100 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                <div class="flex p-4 gap-4 items-center">
+                  <figure class="w-28 h-28 flex-shrink-0">
+                    <img src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/user-image/2025/9/14/09a9438f-db11-469f-be5a-ffd89af94107.png" alt="咖啡优惠券" class="rounded-lg object-cover w-full h-full ifyk48 spark-custom-ifyk48" id="ifyk48">
+                  </figure>
+                  <div class="flex flex-col justify-between flex-grow h-full gap-2">
+                    <h3 id="iywm72" class="font-bold text-base-content leading-tight iywm72 spark-custom-iywm72">
+                      Citywalk&amp;nbsp;20元代金券
+                    </h3>
+                    <div class="flex items-baseline gap-1 text-primary font-semibold">
+                      <span class="iconify" data-icon="heroicons:star-solid" data-width="16"></span><span class="text-lg font-bold">1,500</span><span class="text-xs">积分</span>
+                    </div>
+                    <div>
+                      <div class="text-xs text-base-content/70">不限量</div>
+                      <progress value="100" max="100" class="progress progress-primary w-full h-1 mt-1"></progress>
+                    </div>
+                    <div class="text-right mt-1">
+                      <button class="btn btn-primary btn-sm px-6 redeem-btn" onclick="redeemGift(this, &#39;星巴克 20元代金券&#39;, &#39;https://placehold.co/112x112.png?text=Coffee+Coupon&#39;)">
+                        兑换
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Gift Card 3 (Insufficient points example) -->
+              <div data-repeatable="true" class="card bg-base-100 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 opacity-60">
+                <div class="flex p-4 gap-4 items-center">
+                  <figure class="w-28 h-28 flex-shrink-0">
+                    <img src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/user-image/2025/9/14/ddb7ac63-6864-4b76-a537-1d094f20de19.webp" alt="环保帆布袋" class="rounded-lg object-cover w-full h-full i3pu43 spark-custom-i3pu43" id="i3pu43">
+                  </figure>
+                  <div class="flex flex-col justify-between flex-grow h-full gap-2">
+                    <h3 class="font-bold text-base-content leading-tight">
+                      CityWalk 限定帆布袋
+                    </h3>
+                    <div class="flex items-baseline gap-1 text-primary font-semibold">
+                      <span class="iconify" data-icon="heroicons:star-solid" data-width="16"></span><span class="text-lg font-bold">15,000</span><span class="text-xs">积分</span>
+                    </div>
+                    <div>
+                      <div class="text-xs text-base-content/70">
+                        库存: 10/10
+                      </div>
+                      <progress value="100" max="100" class="progress progress-error w-full h-1 mt-1"></progress>
+                    </div>
+                    <div class="text-right mt-1">
+                      <button disabled="" class="btn btn-primary btn-sm px-6 redeem-btn">
+                        积分不足
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+        <div data-section-id="common_bottom_dock" data-section-type="common_section" class="fixed bottom-0 left-0 right-0 z-40 bg-base-100 border-t border-base-300 safe-area-bottom">
+  <div class="dock bg-base-100 py-2 px-4 justify-center">
+    <!-- 主页 --><button data-tab-id="citywalk_main" data-type="button" class="dock-item dock-item-active flex-col items-center justify-center touch-target" onclick="navigateTo(&#39;citywalk_main&#39;)">
+      <span class="iconify text-xl mb-1" data-icon="heroicons:map" data-width="24" data-type="icon"></span><span data-type="text" class="dock-item-label text-xs">路线</span></button><!-- 上传内容 --><button data-tab-id="content_upload" data-type="button" class="dock-item flex-col items-center justify-center touch-target" onclick="navigateTo(&#39;content_upload&#39;)">
+      <span class="iconify text-xl mb-1" data-icon="heroicons:plus-circle" data-width="24" data-type="icon"></span><span data-type="text" class="dock-item-label text-xs">上传</span></button><!-- 我的卡册 --><button data-tab-id="my_cards" data-type="button" class="dock-item flex-col items-center justify-center touch-target" onclick="navigateTo(&#39;my_cards&#39;)">
+      <span class="iconify text-xl mb-1" data-icon="heroicons:squares-2x2" data-width="24" data-type="icon"></span><span data-type="text" class="dock-item-label text-xs">卡册</span></button><!-- 个人中心 --><button data-tab-id="user_profile" data-type="button" class="dock-item flex-col items-center justify-center touch-target" onclick="navigateTo(&#39;user_profile&#39;)">
+      <span class="iconify text-xl mb-1" data-icon="heroicons:user" data-width="24" data-type="icon"></span><span data-type="text" class="dock-item-label text-xs">我的</span>
+    </button>
+  </div>
+</div>
+
+      </div>
+    </div>
+    <!-- Success Modal -->
+    <dialog id="success_modal" class="modal modal-bottom sm:modal-middle">
+      <div class="modal-box text-center p-8">
+        <div id="modal-content">
+          <img id="modal_gift_image" src="" alt="兑换成功" class="w-32 h-32 mx-auto rounded-lg shadow-lg mb-4">
+          <h3 class="font-bold text-lg text-success">兑换成功!</h3>
+          <p id="modal_gift_name" class="py-4 text-base-content/80"></p>
+        </div>
+        <div class="modal-action justify-center">
+          <form method="dialog">
+            <button class="btn btn-primary w-48" onclick="navigateTo(&#39;user_profile&#39;)">
+              好的
+            </button>
+          </form>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+    <script>
+/* JavaScript code for common usage, should be wrapped in a closure */
+(function() {
+  // Global app state
+  window.APP_GLOBALS = window.APP_GLOBALS || {};
+
+  // Navigation function for page transitions
+  window.navigateTo = function(targetPageId) {
+    // Trigger navigation to another page using the provided snippet
+    const isInIframe = window.self !== window.top;
+    const targetFileName = `${targetPageId}.html`;
+    
+    if (isInIframe) {
+      window.parent.postMessage({
+        type: &#39;iframeNavigation&#39;,
+        targetPageId: targetPageId
+      }, &#39;*&#39;);
+    } else {
+      window.location.href = targetFileName;
+    }
+  };
+
+  // Utility function to handle back navigation
+  window.handleBackNavigation = function() {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      navigateTo(&#39;citywalk_main&#39;);
+    }
+  };
+
+  // Function to show toast notifications
+  window.showToast = function(message, type = &#39;info&#39;) {
+    const toast = document.createElement(&#39;div&#39;);
+    toast.className = `toast toast-bottom toast-center z-50`;
+    toast.innerHTML = `<div class="alert alert-${type}"><span>${message}</span></div>`;
+    document.body.appendChild(toast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 3000);
+  };
+
+  // Smooth scroll to top function
+  window.scrollToTop = function() {
+    window.scrollTo({
+      top: 0,
+      behavior: &#39;smooth&#39;
+    });
+  };
+
+  // Function to update bottom dock active state
+  window.updateBottomDockActive = function(activeTabId) {
+    const dockItems = document.querySelectorAll(&#39;[data-section-id="common_bottom_dock"] .dock-item&#39;);
+    dockItems.forEach(item => {
+      if (item.dataset.tabId === activeTabId) {
+        item.classList.add(&#39;dock-item-active&#39;);
+      } else {
+        item.classList.remove(&#39;dock-item-active&#39;);
+      }
+    });
+  };
+
+  // Haptic feedback for mobile interactions
+  window.triggerHapticFeedback = function(intensity = &#39;medium&#39;) {
+    if (navigator.vibrate) {
+      const patterns = {
+        light: [10],
+        medium: [25],
+        heavy: [50]
+      };
+      navigator.vibrate(patterns[intensity] || patterns.medium);
+    }
+  };
+
+  // Location service helpers
+  window.APP_GLOBALS.locationService = {
+    getCurrentPosition: function() {
+      return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            position => resolve(position),
+            error => reject(error),
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+          );
+        } else {
+          reject(new Error(&#39;地理位置服务不可用&#39;));
+        }
+      });
+    }
+  };
+
+  // Audio service for gacha effects
+  window.APP_GLOBALS.audioService = {
+    playGachaSound: function() {
+      // Placeholder for gacha sound effect
+      if (window.AudioContext || window.webkitAudioContext) {
+        try {
+          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
+          
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+          
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.3);
+        } catch (e) {
+          console.log(&#39;音频播放不可用&#39;);
+        }
+      }
+    }
+  };
+
+})();
+</script><script>
+document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    // Set the active tab in the bottom dock
+    if (window.updateBottomDockActive) {
+        window.updateBottomDockActive(&#39;user_profile&#39;);
+    }
+});
+
+// A stub function to satisfy the script_desc requirement in the spec.
+// The header is built directly into the HTML for this page.
+function configureHeader(options) {
+    console.log(&#39;Header configured with:&#39;, options);
+}
+
+
+/**
+ * Handles the gift redemption process.
+ * @param {HTMLElement} button - The button element that was clicked.
+ * @param {string} giftName - The name of the gift being redeemed.
+ * @param {string} giftImageUrl - The URL of the gift&#39;s image.
+ */
+function redeemGift(button, giftName, giftImageUrl) {
+    const originalText = button.innerHTML;
+    button.innerHTML = &#39;<span class="loading loading-spinner loading-xs"></span>&#39;;
+    button.disabled = true;
+
+    // Trigger haptic feedback for a better user experience
+    if (window.triggerHapticFeedback) {
+        window.triggerHapticFeedback(&#39;medium&#39;);
+    }
+
+    // Simulate API call for redemption
+    setTimeout(() => {
+        const isSuccess = Math.random() > 0.1; // 90% success rate for demo
+
+        if (isSuccess) {
+            // Update and show success modal
+            const modal = document.getElementById(&#39;success_modal&#39;);
+            const modalImage = document.getElementById(&#39;modal_gift_image&#39;);
+            const modalName = document.getElementById(&#39;modal_gift_name&#39;);
+            
+            modalImage.src = giftImageUrl;
+            modalName.textContent = `您已成功兑换 "${giftName}"!`;
+            
+            if (modal.showModal) {
+                 modal.showModal();
+            } else {
+                 showToast(`成功兑换 ${giftName}!`, &#39;success&#39;);
+            }
+           
+        } else {
+            // Show failure toast
+            if (window.showToast) {
+                window.showToast(&#39;兑换失败，积分不足或礼品已无库存&#39;, &#39;error&#39;);
+            }
+        }
+
+        // Restore button state
+        button.innerHTML = originalText;
+        button.disabled = false;
+
+    }, 1500); // Simulate 1.5 second network delay
+}
+
+</script>
+  
+
+<script>
+    setTimeout(() => {
+      Holder.run({
+        domain: "placehold.co"
+      })
+    }, 100)
+  </script></body></html>'></iframe>
+                    </div>
+                  </div>
+
+                </body>
+                </html>
+            

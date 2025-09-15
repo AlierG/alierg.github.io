@@ -1,0 +1,1275 @@
+
+                <!DOCTYPE html>
+                <html lang="zh">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>内容上传页</title>
+                  <style>
+                    *,
+                    *::before,
+                    *::after {
+                      box-sizing: border-box;
+                      margin: 0;
+                    }
+                    .iframe-outer {
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      bottom: 0;
+                      right: 0;
+                      display: flex;
+                      justify-content: center;
+                      background-color: #E0E0E0;
+                    }
+                    .iframe-wrapper {
+                      width: 100%;
+                      height: 100%;
+                      margin: 0 auto;
+                      transform-origin: center top;
+                      flex-shrink: 0;
+                    }
+                    #dynamicIframe {
+                      border: none;
+                      width: 100%;
+                      height: 100%;
+                    }
+                  </style>
+                  <script>
+                const width = 402
+                const height = 874
+                const resolutionRatio = width && height ? width / height : 1
+                const pageNameMap = {
+                  'splash_page': '启动页',
+    'invitation_code_entry': '邀请码输入',
+    'invitation_code_info': '邀请码获取说明',
+    'citywalk_main': 'Citywalk 路段主页',
+    'content_gacha_trigger': '内容抽卡触发页',
+    'content_detail': '内容详情与回复',
+    'content_upload': '内容上传页',
+    'user_profile': '个人中心',
+    'my_cards': '我的卡册',
+    'gift_exchange': '礼品兑换',
+    'points_history': '积分历史',
+    'citywalk_info_guide': 'Citywalk 信息与指南',
+    'support_feedback': '帮助与反馈'
+                }
+                function setIframeSize(w, h) {
+                  const currentContainerRadio = w / h
+                  let widthValue = w
+                  let heightValue = h
+                  let zoom = 1
+                  if (currentContainerRadio > resolutionRatio) {
+                    widthValue = h * resolutionRatio
+                    heightValue = h
+                  } else {
+                    widthValue = w
+                    heightValue = w / resolutionRatio
+                  }
+                  zoom = width ? widthValue / width : 1
+                  return {
+                    width: widthValue / zoom + 'px',
+                    height: heightValue / zoom + 'px',
+                    zoom,
+                  }
+                }
+                function adjustIframeSize() {
+                  const iframeWrapper = document.querySelector(".iframe-wrapper")
+                  const { width, height, zoom } = setIframeSize(window.innerWidth, window.innerHeight)
+                  iframeWrapper.style.height = height
+                  iframeWrapper.style.width = width
+                  iframeWrapper.style.transform = 'scale(' + zoom + ')'
+                }
+                function sanitizeFilename(name) {
+                  return name.replace(/[\/:*?"<>|]/g, '_')
+                }
+                function handlePostMessage(event) {
+                  if (!event.data) {
+                    return
+                  }
+                  const { type, targetPageId } = event.data
+                  const targetPageName = pageNameMap[targetPageId]
+                  if (type === "iframeNavigation" && targetPageId && targetPageName) {
+                    window.location.href = targetPageName + '.html'
+                  }
+                }
+                window.addEventListener('message', handlePostMessage)
+                window.onload = adjustIframeSize
+                window.onresize = adjustIframeSize
+                window.onunload = () => {
+                  window.removeEventListener('message', handlePostMessage)
+                }
+              </script>
+                </head>
+                <body>
+                  <div class="iframe-outer">
+                    <div class="iframe-wrapper">
+                      <iframe id="dynamicIframe" srcdoc='<html lang="zh" data-theme="business"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>上传新内容</title>
+    <link href="./assets/static/uxbot/daisyui@5.css" rel="stylesheet" type="text/css">
+    <script src="./assets/static/uxbot/tailwind-browser@4.js"></script>
+    <link href="./assets/static/uxbot/daisyui-themes.css" rel="stylesheet" type="text/css">
+    <script src="./assets/3/3.1.1/iconify.min.js"></script>
+    <style>
+/* CSS code for common usage */
+/* daisyUI Theme Variables Customization
+ * Based on the business theme and UI guidance requirements,
+ * customize only the CSS variables that need to be different from the theme defaults.
+ * Available theme variables for customization:
+ */
+
+/* Only modify if different from chosen theme defaults */
+:root {
+  /* Business theme with deep grey base and light accents */
+  --color-primary: rgba(59, 130, 246, 0.8); /* Slightly desaturated blue */
+  --color-primary-content: rgba(255, 255, 255, 1); /* White text on primary */
+  --color-secondary: rgba(79, 70, 229, 0.8); /* Desaturated indigo */
+  --color-secondary-content: rgba(255, 255, 255, 1);
+  --color-accent: rgba(59, 130, 246, 0.8); /* Same as primary for consistency */
+  --color-accent-content: rgba(255, 255, 255, 1);
+
+  /* Deep grey backgrounds following Material Design Dark Theme */
+  --color-base-100: rgba(33, 37, 41, 1); /* #212529 deep charcoal for cards */
+  --color-base-200: rgba(26, 29, 33, 1); /* #1A1D21 darker for main content */
+  --color-base-300: rgba(55, 65, 81, 1); /* #374151 lighter grey for borders */
+  --color-base-content: rgba(248, 250, 252, 1); /* #F8FAFC very light grey for main text */
+
+  /* Semantic colors optimized for dark backgrounds */
+  --color-success: rgba(34, 197, 94, 1); /* #22C55E green for success states */
+  --color-success-content: rgba(255, 255, 255, 1);
+  --color-warning: rgba(251, 191, 36, 1); /* #FBBF24 yellow for warnings */
+  --color-warning-content: rgba(0, 0, 0, 1);
+  --color-error: rgba(239, 68, 68, 1); /* #EF4444 red for errors */
+  --color-error-content: rgba(255, 255, 255, 1);
+  --color-info: rgba(59, 130, 246, 1); /* #3B82F6 blue for info */
+  --color-info-content: rgba(255, 255, 255, 1);
+
+  /* Border radius for mobile-friendly touch targets */
+  --radius-box: 0.5rem; /* 8px rounded corners */
+  --radius-field: 0.5rem;
+  --radius-selector: 0.5rem;
+
+  /* Border for subtle separations */
+  --border: 1px;
+}
+
+/* Mobile-specific optimizations */
+.mobile-container {
+  max-width: 402px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: var(--color-base-200);
+}
+
+/* Touch-friendly buttons and interactive elements */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Secondary text color for metadata */
+.text-secondary-gray {
+  color: rgba(156, 163, 175, 1); /* #9CA3AF lighter grey for secondary text */
+}
+
+/* Safe area padding for mobile devices */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-base-300);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-base-content);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Ensure proper contrast for interactive elements */
+.btn, .input, .select, .textarea {
+  border-color: var(--color-base-300);
+}
+
+.btn:hover, .input:focus, .select:focus, .textarea:focus {
+  border-color: var(--color-primary);
+}
+
+/* Card elevation for dark theme */
+.card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+</style> <style>
+/* 内容上传页面特定样式 */
+
+/* 输入框焦点动画 */
+.input:focus, .textarea:focus {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 媒体上传区域样式 */
+.media-upload-btn {
+  transition: all 0.3s ease;
+}
+
+.media-upload-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* 媒体预览网格 */
+.media-preview-grid {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.media-preview-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--radius-box);
+  overflow: hidden;
+  background: var(--color-base-300);
+  cursor: move;
+}
+
+.media-preview-item img,
+.media-preview-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-preview-item .remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.media-preview-item .remove-btn:hover {
+  background: var(--color-error);
+}
+
+/* 拖拽排序样式 */
+.media-preview-item.dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+}
+
+.media-preview-item.drag-over {
+  border: 2px dashed var(--color-primary);
+}
+
+/* 上传进度条动画 */
+.upload-progress-bar {
+  transition: all 0.3s ease;
+}
+
+/* 位置输入组样式 */
+.input-group {
+  display: flex;
+  gap: 0;
+}
+
+.input-group .input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+}
+
+.input-group .btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* 位置状态指示器 */
+.location-status {
+  transition: all 0.3s ease;
+}
+
+.location-loading {
+  animation: spin 1s linear infinite;
+}
+
+/* 提交按钮动画 */
+.submit-upload-btn {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-upload-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+.submit-upload-btn:active {
+  transform: scale(0.98);
+}
+
+.submit-upload-btn.loading::after {
+  content: &#39;&#39;;
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* 底部弹窗动画 */
+.media-selector-modal.show .modal-content,
+.location-selector-modal.show .modal-content {
+  transform: translateY(0);
+}
+
+.media-selector-modal .modal-content,
+.location-selector-modal .modal-content {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 草稿保存指示器动画 */
+.draft-save-indicator {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 复选框自定义样式 */
+.accessibility-feedback-checkbox:checked {
+  animation: checkboxPulse 0.3s ease;
+}
+
+@keyframes checkboxPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* 响应式优化 */
+@media (max-width: 402px) {
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .media-upload-btn {
+    height: 60px;
+  }
+  
+  .btn-lg {
+    height: 48px;
+    min-height: 48px;
+  }
+}
+
+/* 触觉反馈动画 */
+.touch-target:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* 分隔线样式 */
+.divider {
+  margin: 16px 0;
+  opacity: 0.6;
+}
+
+/* 模态框背景模糊效果 */
+.modal-backdrop {
+  backdrop-filter: blur(4px);
+  transition: backdrop-filter 0.3s ease;
+}
+</style>
+  <script src="./assets/static/uxbot/25_6/holder.js"></script></head>
+  <body class="bg-base-200 min-h-screen">
+    <div id="ibfd" class="mobile-container ibfd spark-custom-ibfd ibfd">
+      <div data-section-id="common_header" data-section-type="common_header" class="sticky top-0 z-40 bg-base-100 border-b border-base-300 safe-area-top">
+  <div class="navbar px-4 py-2 min-h-14">
+    <!-- Left side - Back button or Menu button -->
+    <div class="navbar-start">
+      <button class="btn btn-ghost btn-sm btn-circle touch-target header-back-btn" onclick="handleBackNavigation()" data-type="button">
+        <span class="iconify text-base-content" data-icon="heroicons:arrow-left" data-width="20" data-type="icon"></span>
+      </button>
+      <!-- Hamburger menu for drawer (hidden by default) -->
+      <button class="btn btn-ghost btn-sm btn-circle touch-target header-menu-btn hidden" onclick="toggleDrawer()" data-type="button">
+        <span class="iconify text-base-content" data-icon="heroicons:bars-3" data-width="20" data-type="icon"></span>
+      </button>
+    </div>
+
+    <!-- Center - Title or Search -->
+    <div class="navbar-center flex-1 mx-4">
+      <!-- Default title display -->
+      <h1 class="text-lg font-semibold text-base-content header-title text-center" data-type="text">页面标题</h1>
+      <!-- Search input (hidden by default) -->
+      <div class="form-control w-full max-w-xs header-search hidden">
+        <input type="text" placeholder="搜索内容..." class="input input-bordered input-sm w-full bg-base-200" data-type="input">
+      </div>
+    </div>
+
+    <!-- Right side - Action buttons -->
+    <div class="navbar-end">
+      <!-- Search toggle button -->
+      <button class="btn btn-ghost btn-sm btn-circle touch-target header-search-btn hidden" data-type="button">
+        <span class="iconify text-base-content" data-icon="heroicons:magnifying-glass" data-width="20" data-type="icon"></span>
+      </button>
+      
+      <!-- Add content button -->
+      <button class="btn btn-ghost btn-sm btn-circle touch-target header-add-btn hidden" onclick="navigateTo(&#39;content_upload&#39;)" data-type="button">
+        <span class="iconify text-base-content" data-icon="heroicons:plus" data-width="20" data-type="icon"></span>
+      </button>
+      
+      <!-- More options menu -->
+      <div class="dropdown dropdown-end header-more-menu hidden">
+        <button tabindex="0" class="btn btn-ghost btn-sm btn-circle touch-target" data-type="button">
+          <span class="iconify text-base-content" data-icon="heroicons:ellipsis-vertical" data-width="20" data-type="icon"></span>
+        </button>
+        <ul tabindex="0" class="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box w-52 mt-2 border border-base-300" data-type="container">
+          <li><a onclick="showToast(&#39;分享功能开发中&#39;)" data-type="text">分享</a></li>
+          <li><a onclick="showToast(&#39;举报功能开发中&#39;)" data-type="text">举报</a></li>
+          <li><a onclick="navigateTo(&#39;support_feedback&#39;)" data-type="text">帮助与反馈</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+[data-section-id="common_header"] .navbar {
+  height: 56px;
+}
+
+[data-section-id="common_header"] .header-back-btn:hover,
+[data-section-id="common_header"] .header-menu-btn:hover {
+  background-color: var(--color-base-200);
+  transition: background-color 0.2s ease;
+}
+
+[data-section-id="common_header"] .header-title {
+  text-align: center;
+  line-height: 1.2;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-section-id="common_header"] .header-search input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  background-color: var(--color-base-100);
+}
+
+[data-section-id="common_header"] .btn-circle:hover {
+  transform: scale(1.05);
+  transition: transform 0.1s ease;
+}
+
+[data-section-id="common_header"] .btn-circle:active {
+  transform: scale(0.95);
+}
+
+[data-section-id="common_header"] .dropdown-content {
+  background-color: var(--color-base-100);
+  border: 1px solid var(--color-base-300);
+}
+
+[data-section-id="common_header"] .dropdown-content a:hover {
+  background-color: var(--color-base-200);
+}
+</style>
+
+<script>
+(function() {
+  // Header configuration function
+  window.configureHeader = function(options = {}) {
+    const header = document.querySelector(&#39;[data-section-id="common_header"]&#39;);
+    if (!header) return;
+
+    const {
+      title = &#39;页面标题&#39;,
+      showBackButton = true,
+      showMenuButton = false,
+      showSearchButton = false,
+      showSearchInput = false,
+      showAddButton = false,
+      showMoreMenu = false,
+      onSearch = null,
+      onAdd = null
+    } = options;
+
+    // Update title
+    const titleElement = header.querySelector(&#39;.header-title&#39;);
+    titleElement.textContent = title;
+
+    // Toggle back button
+    const backBtn = header.querySelector(&#39;.header-back-btn&#39;);
+    const menuBtn = header.querySelector(&#39;.header-menu-btn&#39;);
+    backBtn.style.display = showBackButton ? &#39;flex&#39; : &#39;none&#39;;
+    menuBtn.style.display = showMenuButton ? &#39;flex&#39; : &#39;none&#39;;
+
+    // Toggle search elements
+    const searchBtn = header.querySelector(&#39;.header-search-btn&#39;);
+    const searchInput = header.querySelector(&#39;.header-search&#39;);
+    searchBtn.classList.toggle(&#39;hidden&#39;, !showSearchButton);
+    searchInput.classList.toggle(&#39;hidden&#39;, !showSearchInput);
+    titleElement.classList.toggle(&#39;hidden&#39;, showSearchInput);
+
+    // Toggle add button
+    const addBtn = header.querySelector(&#39;.header-add-btn&#39;);
+    addBtn.classList.toggle(&#39;hidden&#39;, !showAddButton);
+
+    // Toggle more menu
+    const moreMenu = header.querySelector(&#39;.header-more-menu&#39;);
+    moreMenu.classList.toggle(&#39;hidden&#39;, !showMoreMenu);
+
+    // Handle search toggle
+    if (showSearchButton &amp;&amp; !showSearchInput) {
+      searchBtn.onclick = function() {
+        searchInput.classList.remove(&#39;hidden&#39;);
+        titleElement.classList.add(&#39;hidden&#39;);
+        searchBtn.classList.add(&#39;hidden&#39;);
+        const input = searchInput.querySelector(&#39;input&#39;);
+        input.focus();
+      };
+    }
+
+    // Handle search input
+    if (showSearchInput &amp;&amp; onSearch) {
+      const input = searchInput.querySelector(&#39;input&#39;);
+      input.addEventListener(&#39;input&#39;, function(e) {
+        onSearch(e.target.value);
+      });
+    }
+
+    // Handle add button
+    if (showAddButton &amp;&amp; onAdd) {
+      addBtn.onclick = onAdd;
+    }
+  };
+
+  // Drawer toggle function
+  window.toggleDrawer = function() {
+    const drawer = document.querySelector(&#39;[data-section-id="common_drawer"]&#39;);
+    if (drawer) {
+      const drawerToggle = drawer.querySelector(&#39;.drawer-toggle&#39;);
+      if (drawerToggle) {
+        drawerToggle.checked = !drawerToggle.checked;
+      }
+    }
+  };
+
+  // Default header configuration
+  document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    configureHeader();
+  });
+})();
+</script><!-- Main Content -->
+      <div class="pb-20"><!-- Padding bottom for dock --></div>
+      <div data-section-id="common_bottom_dock" data-section-type="common_section" class="fixed bottom-0 left-0 right-0 z-40 bg-base-100 border-t border-base-300 safe-area-bottom">
+  <div class="dock bg-base-100 py-2 px-4 justify-center">
+    <!-- 主页 -->
+    <button class="dock-item dock-item-active flex-col items-center justify-center touch-target" data-tab-id="citywalk_main" onclick="navigateTo(&#39;citywalk_main&#39;)" data-type="button">
+      <span class="iconify text-xl mb-1" data-icon="heroicons:map" data-width="24" data-type="icon"></span>
+      <span class="dock-item-label text-xs" data-type="text">路线</span>
+    </button>
+    
+    <!-- 上传内容 -->
+    <button class="dock-item flex-col items-center justify-center touch-target" data-tab-id="content_upload" onclick="navigateTo(&#39;content_upload&#39;)" data-type="button">
+      <span class="iconify text-xl mb-1" data-icon="heroicons:plus-circle" data-width="24" data-type="icon"></span>
+      <span class="dock-item-label text-xs" data-type="text">上传</span>
+    </button>
+    
+    <!-- 我的卡册 -->
+    <button class="dock-item flex-col items-center justify-center touch-target" data-tab-id="my_cards" onclick="navigateTo(&#39;my_cards&#39;)" data-type="button">
+      <span class="iconify text-xl mb-1" data-icon="heroicons:squares-2x2" data-width="24" data-type="icon"></span>
+      <span class="dock-item-label text-xs" data-type="text">卡册</span>
+    </button>
+    
+    <!-- 个人中心 -->
+    <button class="dock-item flex-col items-center justify-center touch-target" data-tab-id="user_profile" onclick="navigateTo(&#39;user_profile&#39;)" data-type="button">
+      <span class="iconify text-xl mb-1" data-icon="heroicons:user" data-width="24" data-type="icon"></span>
+      <span class="dock-item-label text-xs" data-type="text">我的</span>
+    </button>
+  </div>
+</div>
+
+<style>
+[data-section-id="common_bottom_dock"] .dock {
+  height: 56px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  max-width: 402px;
+  margin: 0 auto;
+}
+
+[data-section-id="common_bottom_dock"] .dock-item {
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 8px;
+  min-width: 60px;
+  color: var(--color-base-content);
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+[data-section-id="common_bottom_dock"] .dock-item:hover {
+  background-color: var(--color-base-200);
+  opacity: 0.8;
+}
+
+[data-section-id="common_bottom_dock"] .dock-item-active {
+  color: var(--color-primary) !important;
+  opacity: 1 !important;
+}
+
+[data-section-id="common_bottom_dock"] .dock-item-active .iconify {
+  color: var(--color-primary);
+}
+
+[data-section-id="common_bottom_dock"] .dock-item-label {
+  font-size: 12px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+[data-section-id="common_bottom_dock"] .dock-item:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* Add bottom padding to body to prevent content from being hidden behind dock */
+body {
+  padding-bottom: 72px; /* 56px dock height + 16px safe area */
+}
+</style>
+
+<script>
+(function() {
+  // Function to update active tab in bottom dock
+  window.updateBottomDockActive = function(activeTabId) {
+    const dockItems = document.querySelectorAll(&#39;[data-section-id="common_bottom_dock"] .dock-item&#39;);
+    dockItems.forEach(item => {
+      if (item.dataset.tabId === activeTabId) {
+        item.classList.add(&#39;dock-item-active&#39;);
+      } else {
+        item.classList.remove(&#39;dock-item-active&#39;);
+      }
+    });
+  };
+
+  // Add haptic feedback and visual effects on touch
+  document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    const dockItems = document.querySelectorAll(&#39;[data-section-id="common_bottom_dock"] .dock-item&#39;);
+    
+    dockItems.forEach(item => {
+      item.addEventListener(&#39;touchstart&#39;, function() {
+        this.style.transform = &#39;scale(0.95)&#39;;
+        // Trigger haptic feedback if available
+        if (window.triggerHapticFeedback) {
+          window.triggerHapticFeedback(&#39;light&#39;);
+        }
+      });
+      
+      item.addEventListener(&#39;touchend&#39;, function() {
+        setTimeout(() => {
+          this.style.transform = &#39;scale(1)&#39;;
+        }, 100);
+      });
+      
+      item.addEventListener(&#39;click&#39;, function() {
+        // Add visual feedback for tap
+        this.style.backgroundColor = &#39;var(--color-primary)&#39;;
+        this.style.color = &#39;var(--color-primary-content)&#39;;
+        
+        setTimeout(() => {
+          this.style.backgroundColor = &#39;&#39;;
+          this.style.color = &#39;&#39;;
+        }, 150);
+      });
+    });
+  });
+})();
+</script>
+    </div>
+    <script>
+/* JavaScript code for common usage, should be wrapped in a closure */
+(function() {
+  // Global app state
+  window.APP_GLOBALS = window.APP_GLOBALS || {};
+
+  // Navigation function for page transitions
+  window.navigateTo = function(targetPageId) {
+    // Trigger navigation to another page using the provided snippet
+    const isInIframe = window.self !== window.top;
+    const targetFileName = `${targetPageId}.html`;
+    
+    if (isInIframe) {
+      window.parent.postMessage({
+        type: &#39;iframeNavigation&#39;,
+        targetPageId: targetPageId
+      }, &#39;*&#39;);
+    } else {
+      window.location.href = targetFileName;
+    }
+  };
+
+  // Utility function to handle back navigation
+  window.handleBackNavigation = function() {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      navigateTo(&#39;citywalk_main&#39;);
+    }
+  };
+
+  // Function to show toast notifications
+  window.showToast = function(message, type = &#39;info&#39;) {
+    const toast = document.createElement(&#39;div&#39;);
+    toast.className = `toast toast-bottom toast-center z-50`;
+    toast.innerHTML = `<div class="alert alert-${type}"><span>${message}</span></div>`;
+    document.body.appendChild(toast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 3000);
+  };
+
+  // Smooth scroll to top function
+  window.scrollToTop = function() {
+    window.scrollTo({
+      top: 0,
+      behavior: &#39;smooth&#39;
+    });
+  };
+
+  // Function to update bottom dock active state
+  window.updateBottomDockActive = function(activeTabId) {
+    const dockItems = document.querySelectorAll(&#39;[data-section-id="common_bottom_dock"] .dock-item&#39;);
+    dockItems.forEach(item => {
+      if (item.dataset.tabId === activeTabId) {
+        item.classList.add(&#39;dock-item-active&#39;);
+      } else {
+        item.classList.remove(&#39;dock-item-active&#39;);
+      }
+    });
+  };
+
+  // Haptic feedback for mobile interactions
+  window.triggerHapticFeedback = function(intensity = &#39;medium&#39;) {
+    if (navigator.vibrate) {
+      const patterns = {
+        light: [10],
+        medium: [25],
+        heavy: [50]
+      };
+      navigator.vibrate(patterns[intensity] || patterns.medium);
+    }
+  };
+
+  // Location service helpers
+  window.APP_GLOBALS.locationService = {
+    getCurrentPosition: function() {
+      return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            position => resolve(position),
+            error => reject(error),
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+          );
+        } else {
+          reject(new Error(&#39;地理位置服务不可用&#39;));
+        }
+      });
+    }
+  };
+
+  // Audio service for gacha effects
+  window.APP_GLOBALS.audioService = {
+    playGachaSound: function() {
+      // Placeholder for gacha sound effect
+      if (window.AudioContext || window.webkitAudioContext) {
+        try {
+          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
+          
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+          
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.3);
+        } catch (e) {
+          console.log(&#39;音频播放不可用&#39;);
+        }
+      }
+    }
+  };
+
+})();
+</script><script>
+// 页面加载初始化
+document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+  // 配置头部
+  if (window.configureHeader) {
+    configureHeader({
+      title: &#39;上传新内容&#39;,
+      showBackButton: true,
+      showMenuButton: false,
+      showSearchButton: false,
+      showAddButton: false,
+      showMoreMenu: false
+    });
+  }
+
+  // 更新底部Dock激活状态
+  if (window.updateBottomDockActive) {
+    updateBottomDockActive(&#39;content_upload&#39;);
+  }
+
+  // 初始化页面功能
+  initContentUpload();
+  initLocationService();
+  initDraftSaving();
+  initMediaPreview();
+});
+
+// 内容上传功能初始化
+function initContentUpload() {
+  const titleInput = document.querySelector(&#39;.input[placeholder*="Citywalk"]&#39;);
+  const descriptionTextarea = document.querySelector(&#39;.textarea&#39;);
+  const accessibilityCheckbox = document.querySelector(&#39;.accessibility-feedback-checkbox&#39;);
+
+  // 输入框焦点动画
+  [titleInput, descriptionTextarea].forEach(input => {
+    if (input) {
+      input.addEventListener(&#39;focus&#39;, function() {
+        this.style.transform = &#39;scale(1.02)&#39;;
+        if (window.triggerHapticFeedback) {
+          window.triggerHapticFeedback(&#39;light&#39;);
+        }
+      });
+
+      input.addEventListener(&#39;blur&#39;, function() {
+        this.style.transform = &#39;scale(1)&#39;;
+      });
+
+      // 自动保存草稿
+      input.addEventListener(&#39;input&#39;, function() {
+        saveDraft();
+      });
+    }
+  });
+
+  // 复选框动画
+  if (accessibilityCheckbox) {
+    accessibilityCheckbox.addEventListener(&#39;change&#39;, function() {
+      if (this.checked) {
+        this.style.animation = &#39;checkboxPulse 0.3s ease&#39;;
+        if (window.triggerHapticFeedback) {
+          window.triggerHapticFeedback(&#39;medium&#39;);
+        }
+      }
+      setTimeout(() => {
+        this.style.animation = &#39;&#39;;
+      }, 300);
+    });
+  }
+}
+
+// 地理位置服务初始化
+function initLocationService() {
+  const locationInput = document.querySelector(&#39;.location-input&#39;);
+  const locationStatus = document.querySelector(&#39;.location-status-text&#39;);
+  const locationLoading = document.querySelector(&#39;.location-loading&#39;);
+
+  // 自动获取当前位置
+  if (window.APP_GLOBALS &amp;&amp; window.APP_GLOBALS.locationService) {
+    window.APP_GLOBALS.locationService.getCurrentPosition()
+      .then(position => {
+        const { latitude, longitude } = position.coords;
+        // 模拟地址解析
+        locationInput.value = `当前位置 (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+        locationStatus.textContent = &#39;位置获取成功&#39;;
+        locationLoading.classList.add(&#39;hidden&#39;);
+      })
+      .catch(error => {
+        locationInput.placeholder = &#39;点击选择位置&#39;;
+        locationStatus.textContent = &#39;无法获取位置，请手动选择&#39;;
+        locationLoading.classList.add(&#39;hidden&#39;);
+      });
+  }
+}
+
+// 草稿保存功能
+function initDraftSaving() {
+  let draftTimer;
+  
+  window.saveDraft = function() {
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(() => {
+      const draftIndicator = document.querySelector(&#39;.draft-save-indicator&#39;);
+      if (draftIndicator) {
+        draftIndicator.classList.remove(&#39;hidden&#39;);
+        setTimeout(() => {
+          draftIndicator.classList.add(&#39;hidden&#39;);
+        }, 2000);
+      }
+    }, 1000);
+  };
+}
+
+// 媒体预览功能初始化
+function initMediaPreview() {
+  let mediaFiles = [];
+  
+  window.addMediaFile = function(file, type) {
+    const previewGrid = document.querySelector(&#39;.media-preview-grid&#39;);
+    const previewItem = document.createElement(&#39;div&#39;);
+    previewItem.className = &#39;media-preview-item&#39;;
+    previewItem.draggable = true;
+    
+    let content = &#39;&#39;;
+    if (type === &#39;image&#39;) {
+      content = `<img src="https://placehold.co/120x120.png?text=Image+Preview" alt="图片预览" />`;
+    } else if (type === &#39;video&#39;) {
+      content = `<video src="https://placehold.co/120x120.png?text=Video+Preview" poster="https://placehold.co/120x120.png?text=Video+Thumbnail"></video>`;
+    } else if (type === &#39;audio&#39;) {
+      content = `<div class="flex items-center justify-center h-full bg-base-300"><span class="iconify text-4xl" data-icon="heroicons:musical-note" data-width="48"></span></div>`;
+    }
+    
+    previewItem.innerHTML = `
+      ${content}
+      <div class="remove-btn" onclick="removeMediaFile(this)">
+        <span class="iconify" data-icon="heroicons:x-mark" data-width="12"></span>
+      </div>
+    `;
+    
+    previewGrid.appendChild(previewItem);
+    previewGrid.classList.remove(&#39;hidden&#39;);
+    
+    // 添加拖拽排序事件
+    addDragSortEvents(previewItem);
+    
+    mediaFiles.push({ file, type, element: previewItem });
+  };
+  
+  window.removeMediaFile = function(button) {
+    const item = button.parentElement;
+    const index = mediaFiles.findIndex(media => media.element === item);
+    if (index > -1) {
+      mediaFiles.splice(index, 1);
+      item.remove();
+      
+      if (mediaFiles.length === 0) {
+        document.querySelector(&#39;.media-preview-grid&#39;).classList.add(&#39;hidden&#39;);
+      }
+    }
+  };
+}
+
+// 拖拽排序功能
+function addDragSortEvents(element) {
+  element.addEventListener(&#39;dragstart&#39;, function(e) {
+    this.classList.add(&#39;dragging&#39;);
+    e.dataTransfer.effectAllowed = &#39;move&#39;;
+  });
+  
+  element.addEventListener(&#39;dragend&#39;, function() {
+    this.classList.remove(&#39;dragging&#39;);
+    document.querySelectorAll(&#39;.media-preview-item&#39;).forEach(item => {
+      item.classList.remove(&#39;drag-over&#39;);
+    });
+  });
+  
+  element.addEventListener(&#39;dragover&#39;, function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = &#39;move&#39;;
+    this.classList.add(&#39;drag-over&#39;);
+  });
+  
+  element.addEventListener(&#39;dragleave&#39;, function() {
+    this.classList.remove(&#39;drag-over&#39;);
+  });
+  
+  element.addEventListener(&#39;drop&#39;, function(e) {
+    e.preventDefault();
+    this.classList.remove(&#39;drag-over&#39;);
+    
+    const dragging = document.querySelector(&#39;.dragging&#39;);
+    if (dragging &amp;&amp; dragging !== this) {
+      const grid = this.parentElement;
+      const afterElement = getDragAfterElement(grid, e.clientY);
+      
+      if (afterElement == null) {
+        grid.appendChild(dragging);
+      } else {
+        grid.insertBefore(dragging, afterElement);
+      }
+    }
+  });
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll(&#39;.media-preview-item:not(.dragging)&#39;)];
+  
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    
+    if (offset < 0 &amp;&amp; offset > closest.offset) {
+      return { offset: offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+// 媒体选择器功能
+window.openMediaSelector = function() {
+  const modal = document.querySelector(&#39;.media-selector-modal&#39;);
+  modal.classList.remove(&#39;hidden&#39;);
+  setTimeout(() => {
+    modal.classList.add(&#39;show&#39;);
+  }, 10);
+  
+  if (window.triggerHapticFeedback) {
+    window.triggerHapticFeedback(&#39;medium&#39;);
+  }
+};
+
+window.closeMediaSelector = function() {
+  const modal = document.querySelector(&#39;.media-selector-modal&#39;);
+  modal.classList.remove(&#39;show&#39;);
+  setTimeout(() => {
+    modal.classList.add(&#39;hidden&#39;);
+  }, 300);
+};
+
+window.selectMediaType = function(type) {
+  // 模拟文件选择和上传
+  showUploadProgress();
+  
+  setTimeout(() => {
+    addMediaFile(null, type);
+    hideUploadProgress();
+    closeMediaSelector();
+    
+    if (window.showToast) {
+      window.showToast(`${type === &#39;image&#39; ? &#39;图片&#39; : type === &#39;audio&#39; ? &#39;音频&#39; : &#39;视频&#39;}上传成功`, &#39;success&#39;);
+    }
+  }, 2000);
+};
+
+// 地理位置选择器功能
+window.openLocationSelector = function() {
+  const modal = document.querySelector(&#39;.location-selector-modal&#39;);
+  modal.classList.remove(&#39;hidden&#39;);
+  setTimeout(() => {
+    modal.classList.add(&#39;show&#39;);
+  }, 10);
+};
+
+window.closeLocationSelector = function() {
+  const modal = document.querySelector(&#39;.location-selector-modal&#39;);
+  modal.classList.remove(&#39;show&#39;);
+  setTimeout(() => {
+    modal.classList.add(&#39;hidden&#39;);
+  }, 300);
+};
+
+window.getCurrentLocation = function() {
+  const locationInput = document.querySelector(&#39;.location-input&#39;);
+  const locationStatus = document.querySelector(&#39;.location-status-text&#39;);
+  
+  if (window.APP_GLOBALS &amp;&amp; window.APP_GLOBALS.locationService) {
+    window.APP_GLOBALS.locationService.getCurrentPosition()
+      .then(position => {
+        const { latitude, longitude } = position.coords;
+        locationInput.value = `当前位置 (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+        locationStatus.textContent = &#39;位置获取成功&#39;;
+        closeLocationSelector();
+        
+        if (window.showToast) {
+          window.showToast(&#39;位置获取成功&#39;, &#39;success&#39;);
+        }
+      })
+      .catch(error => {
+        if (window.showToast) {
+          window.showToast(&#39;位置获取失败，请手动输入&#39;, &#39;error&#39;);
+        }
+      });
+  }
+};
+
+window.confirmManualLocation = function() {
+  const manualInput = document.querySelector(&#39;.manual-location-input&#39;);
+  const locationInput = document.querySelector(&#39;.location-input&#39;);
+  
+  if (manualInput.value.trim()) {
+    locationInput.value = manualInput.value.trim();
+    closeLocationSelector();
+    
+    if (window.showToast) {
+      window.showToast(&#39;位置设置成功&#39;, &#39;success&#39;);
+    }
+  } else {
+    if (window.showToast) {
+      window.showToast(&#39;请输入有效地址&#39;, &#39;warning&#39;);
+    }
+  }
+};
+
+// 上传进度显示
+function showUploadProgress() {
+  const progressContainer = document.querySelector(&#39;.upload-progress-container&#39;);
+  const progressBar = document.querySelector(&#39;.upload-progress-bar&#39;);
+  const progressText = document.querySelector(&#39;.upload-progress-text&#39;);
+  
+  progressContainer.classList.remove(&#39;hidden&#39;);
+  
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.random() * 15;
+    if (progress > 100) progress = 100;
+    
+    progressBar.value = progress;
+    progressText.textContent = Math.round(progress) + &#39;%&#39;;
+    
+    if (progress >= 100) {
+      clearInterval(interval);
+    }
+  }, 100);
+}
+
+function hideUploadProgress() {
+  const progressContainer = document.querySelector(&#39;.upload-progress-container&#39;);
+  progressContainer.classList.add(&#39;hidden&#39;);
+}
+
+// 提交上传处理
+window.handleSubmitUpload = function() {
+  const submitBtn = document.querySelector(&#39;.submit-upload-btn&#39;);
+  const titleInput = document.querySelector(&#39;.input[placeholder*="Citywalk"]&#39;);
+  const descriptionTextarea = document.querySelector(&#39;.textarea&#39;);
+  
+  // 验证必填字段
+  if (!titleInput.value.trim()) {
+    if (window.showToast) {
+      window.showToast(&#39;请输入标题&#39;, &#39;warning&#39;);
+    }
+    titleInput.focus();
+    return;
+  }
+  
+  if (!descriptionTextarea.value.trim()) {
+    if (window.showToast) {
+      window.showToast(&#39;请输入内容描述&#39;, &#39;warning&#39;);
+    }
+    descriptionTextarea.focus();
+    return;
+  }
+  
+  // 添加加载状态
+  submitBtn.classList.add(&#39;loading&#39;);
+  submitBtn.disabled = true;
+  
+  if (window.triggerHapticFeedback) {
+    window.triggerHapticFeedback(&#39;heavy&#39;);
+  }
+  
+  // 模拟上传过程
+  setTimeout(() => {
+    if (window.showToast) {
+      window.showToast(&#39;内容上传成功！&#39;, &#39;success&#39;);
+    }
+    
+    // 导航回主页
+    navigateTo(&#39;citywalk_main&#39;);
+  }, 2000);
+};
+
+// 取消上传处理
+window.handleCancelUpload = function() {
+  const titleInput = document.querySelector(&#39;.input[placeholder*="Citywalk"]&#39;);
+  const descriptionTextarea = document.querySelector(&#39;.textarea&#39;);
+  
+  // 检查是否有未保存的内容
+  if (titleInput.value.trim() || descriptionTextarea.value.trim()) {
+    if (confirm(&#39;确定要取消上传吗？未保存的内容将丢失。&#39;)) {
+      navigateTo(&#39;citywalk_main&#39;);
+    }
+  } else {
+    navigateTo(&#39;citywalk_main&#39;);
+  }
+};
+</script>
+  
+
+<script>
+    setTimeout(() => {
+      Holder.run({
+        domain: "placehold.co"
+      })
+    }, 100)
+  </script></body></html>'></iframe>
+                    </div>
+                  </div>
+
+                </body>
+                </html>
+            

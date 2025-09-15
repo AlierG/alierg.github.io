@@ -1,0 +1,806 @@
+
+                <!DOCTYPE html>
+                <html lang="zh">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>内容详情与回复</title>
+                  <style>
+                    *,
+                    *::before,
+                    *::after {
+                      box-sizing: border-box;
+                      margin: 0;
+                    }
+                    .iframe-outer {
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      bottom: 0;
+                      right: 0;
+                      display: flex;
+                      justify-content: center;
+                      background-color: #E0E0E0;
+                    }
+                    .iframe-wrapper {
+                      width: 100%;
+                      height: 100%;
+                      margin: 0 auto;
+                      transform-origin: center top;
+                      flex-shrink: 0;
+                    }
+                    #dynamicIframe {
+                      border: none;
+                      width: 100%;
+                      height: 100%;
+                    }
+                  </style>
+                  <script>
+                const width = 402
+                const height = 874
+                const resolutionRatio = width && height ? width / height : 1
+                const pageNameMap = {
+                  'splash_page': '启动页',
+    'invitation_code_entry': '邀请码输入',
+    'invitation_code_info': '邀请码获取说明',
+    'citywalk_main': 'Citywalk 路段主页',
+    'content_gacha_trigger': '内容抽卡触发页',
+    'content_detail': '内容详情与回复',
+    'content_upload': '内容上传页',
+    'user_profile': '个人中心',
+    'my_cards': '我的卡册',
+    'gift_exchange': '礼品兑换',
+    'points_history': '积分历史',
+    'citywalk_info_guide': 'Citywalk 信息与指南',
+    'support_feedback': '帮助与反馈'
+                }
+                function setIframeSize(w, h) {
+                  const currentContainerRadio = w / h
+                  let widthValue = w
+                  let heightValue = h
+                  let zoom = 1
+                  if (currentContainerRadio > resolutionRatio) {
+                    widthValue = h * resolutionRatio
+                    heightValue = h
+                  } else {
+                    widthValue = w
+                    heightValue = w / resolutionRatio
+                  }
+                  zoom = width ? widthValue / width : 1
+                  return {
+                    width: widthValue / zoom + 'px',
+                    height: heightValue / zoom + 'px',
+                    zoom,
+                  }
+                }
+                function adjustIframeSize() {
+                  const iframeWrapper = document.querySelector(".iframe-wrapper")
+                  const { width, height, zoom } = setIframeSize(window.innerWidth, window.innerHeight)
+                  iframeWrapper.style.height = height
+                  iframeWrapper.style.width = width
+                  iframeWrapper.style.transform = 'scale(' + zoom + ')'
+                }
+                function sanitizeFilename(name) {
+                  return name.replace(/[\/:*?"<>|]/g, '_')
+                }
+                function handlePostMessage(event) {
+                  if (!event.data) {
+                    return
+                  }
+                  const { type, targetPageId } = event.data
+                  const targetPageName = pageNameMap[targetPageId]
+                  if (type === "iframeNavigation" && targetPageId && targetPageName) {
+                    window.location.href = targetPageName + '.html'
+                  }
+                }
+                window.addEventListener('message', handlePostMessage)
+                window.onload = adjustIframeSize
+                window.onresize = adjustIframeSize
+                window.onunload = () => {
+                  window.removeEventListener('message', handlePostMessage)
+                }
+              </script>
+                </head>
+                <body>
+                  <div class="iframe-outer">
+                    <div class="iframe-wrapper">
+                      <iframe id="dynamicIframe" srcdoc='<html lang="简体中文" data-theme="business"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>内容详情与回复</title>
+    <link href="./assets/static/uxbot/daisyui@5.css" rel="stylesheet" type="text/css">
+    <script src="./assets/static/uxbot/tailwind-browser@4.js"></script>
+    <link href="./assets/static/uxbot/daisyui-themes.css" rel="stylesheet" type="text/css">
+    <script src="./assets/3/3.1.1/iconify.min.js"></script>
+    <style>
+/* CSS code for common usage */
+/* daisyUI Theme Variables Customization
+ * Based on the business theme and UI guidance requirements,
+ * customize only the CSS variables that need to be different from the theme defaults.
+ * Available theme variables for customization:
+ */
+
+/* Only modify if different from chosen theme defaults */
+:root {
+  /* Business theme with deep grey base and light accents */
+  --color-primary: rgba(59, 130, 246, 0.8); /* Slightly desaturated blue */
+  --color-primary-content: rgba(255, 255, 255, 1); /* White text on primary */
+  --color-secondary: rgba(79, 70, 229, 0.8); /* Desaturated indigo */
+  --color-secondary-content: rgba(255, 255, 255, 1);
+  --color-accent: rgba(59, 130, 246, 0.8); /* Same as primary for consistency */
+  --color-accent-content: rgba(255, 255, 255, 1);
+
+  /* Deep grey backgrounds following Material Design Dark Theme */
+  --color-base-100: rgba(33, 37, 41, 1); /* #212529 deep charcoal for cards */
+  --color-base-200: rgba(26, 29, 33, 1); /* #1A1D21 darker for main content */
+  --color-base-300: rgba(55, 65, 81, 1); /* #374151 lighter grey for borders */
+  --color-base-content: rgba(248, 250, 252, 1); /* #F8FAFC very light grey for main text */
+
+  /* Semantic colors optimized for dark backgrounds */
+  --color-success: rgba(34, 197, 94, 1); /* #22C55E green for success states */
+  --color-success-content: rgba(255, 255, 255, 1);
+  --color-warning: rgba(251, 191, 36, 1); /* #FBBF24 yellow for warnings */
+  --color-warning-content: rgba(0, 0, 0, 1);
+  --color-error: rgba(239, 68, 68, 1); /* #EF4444 red for errors */
+  --color-error-content: rgba(255, 255, 255, 1);
+  --color-info: rgba(59, 130, 246, 1); /* #3B82F6 blue for info */
+  --color-info-content: rgba(255, 255, 255, 1);
+
+  /* Border radius for mobile-friendly touch targets */
+  --radius-box: 0.5rem; /* 8px rounded corners */
+  --radius-field: 0.5rem;
+  --radius-selector: 0.5rem;
+
+  /* Border for subtle separations */
+  --border: 1px;
+}
+
+/* Mobile-specific optimizations */
+.mobile-container {
+  max-width: 402px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: var(--color-base-200);
+}
+
+/* Touch-friendly buttons and interactive elements */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Secondary text color for metadata */
+.text-secondary-gray {
+  color: rgba(156, 163, 175, 1); /* #9CA3AF lighter grey for secondary text */
+}
+
+/* Safe area padding for mobile devices */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-base-300);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-base-content);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Ensure proper contrast for interactive elements */
+.btn, .input, .select, .textarea {
+  border-color: var(--color-base-300);
+}
+
+.btn:hover, .input:focus, .select:focus, .textarea:focus {
+  border-color: var(--color-primary);
+}
+
+/* Card elevation for dark theme */
+.card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+</style> <style>
+.reply-thread-nested {
+    position: relative;
+}
+.reply-thread-nested::before {
+    content: &#39;&#39;;
+    position: absolute;
+    left: -1.75rem; /* Adjust based on avatar width and gap */
+    top: -0.5rem;
+    bottom: 0;
+    width: 1px;
+    background-color: var(--color-base-300);
+    opacity: 0.5;
+}
+</style>
+  <script src="./assets/static/uxbot/25_6/holder.js"></script><style>
+#is3b1g.spark-custom-is3b1g {
+  height: 94px;
+}
+
+#iz23cg.spark-custom-iz23cg {
+  height: 89px;
+  width: 138px;
+}
+
+</style></head>
+  <body class="mobile-container bg-base-200">
+    <div class="fixed top-0 left-0 right-0 z-40 w-full max-w-[402px] mx-auto">
+      <div data-section-id="common_header" data-section-type="common_header" class="sticky top-0 z-40 bg-base-100 border-b border-base-300 safe-area-top">
+  <div class="navbar px-4 py-2 min-h-14">
+    <!-- Left side - Back button or Menu button -->
+    <div class="navbar-start">
+      <button class="btn btn-ghost btn-sm btn-circle touch-target header-back-btn" onclick="handleBackNavigation()" data-type="button">
+        <span class="iconify text-base-content" data-icon="heroicons:arrow-left" data-width="20" data-type="icon"></span>
+      </button>
+      <!-- Hamburger menu for drawer (hidden by default) -->
+      <button class="btn btn-ghost btn-sm btn-circle touch-target header-menu-btn hidden" onclick="toggleDrawer()" data-type="button">
+        <span class="iconify text-base-content" data-icon="heroicons:bars-3" data-width="20" data-type="icon"></span>
+      </button>
+    </div>
+
+    <!-- Center - Title or Search -->
+    <div class="navbar-center flex-1 mx-4">
+      <!-- Default title display -->
+      <h1 class="text-lg font-semibold text-base-content header-title text-center" data-type="text">页面标题</h1>
+      <!-- Search input (hidden by default) -->
+      <div class="form-control w-full max-w-xs header-search hidden">
+        <input type="text" placeholder="搜索内容..." class="input input-bordered input-sm w-full bg-base-200" data-type="input">
+      </div>
+    </div>
+
+    <!-- Right side - Action buttons -->
+    <div class="navbar-end">
+      <!-- Search toggle button -->
+      <button class="btn btn-ghost btn-sm btn-circle touch-target header-search-btn hidden" data-type="button">
+        <span class="iconify text-base-content" data-icon="heroicons:magnifying-glass" data-width="20" data-type="icon"></span>
+      </button>
+      
+      <!-- Add content button -->
+      <button class="btn btn-ghost btn-sm btn-circle touch-target header-add-btn hidden" onclick="navigateTo(&#39;content_upload&#39;)" data-type="button">
+        <span class="iconify text-base-content" data-icon="heroicons:plus" data-width="20" data-type="icon"></span>
+      </button>
+      
+      <!-- More options menu -->
+      <div class="dropdown dropdown-end header-more-menu hidden">
+        <button tabindex="0" class="btn btn-ghost btn-sm btn-circle touch-target" data-type="button">
+          <span class="iconify text-base-content" data-icon="heroicons:ellipsis-vertical" data-width="20" data-type="icon"></span>
+        </button>
+        <ul tabindex="0" class="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box w-52 mt-2 border border-base-300" data-type="container">
+          <li><a onclick="showToast(&#39;分享功能开发中&#39;)" data-type="text">分享</a></li>
+          <li><a onclick="showToast(&#39;举报功能开发中&#39;)" data-type="text">举报</a></li>
+          <li><a onclick="navigateTo(&#39;support_feedback&#39;)" data-type="text">帮助与反馈</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+[data-section-id="common_header"] .navbar {
+  height: 56px;
+}
+
+[data-section-id="common_header"] .header-back-btn:hover,
+[data-section-id="common_header"] .header-menu-btn:hover {
+  background-color: var(--color-base-200);
+  transition: background-color 0.2s ease;
+}
+
+[data-section-id="common_header"] .header-title {
+  text-align: center;
+  line-height: 1.2;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-section-id="common_header"] .header-search input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  background-color: var(--color-base-100);
+}
+
+[data-section-id="common_header"] .btn-circle:hover {
+  transform: scale(1.05);
+  transition: transform 0.1s ease;
+}
+
+[data-section-id="common_header"] .btn-circle:active {
+  transform: scale(0.95);
+}
+
+[data-section-id="common_header"] .dropdown-content {
+  background-color: var(--color-base-100);
+  border: 1px solid var(--color-base-300);
+}
+
+[data-section-id="common_header"] .dropdown-content a:hover {
+  background-color: var(--color-base-200);
+}
+</style>
+
+<script>
+(function() {
+  // Header configuration function
+  window.configureHeader = function(options = {}) {
+    const header = document.querySelector(&#39;[data-section-id="common_header"]&#39;);
+    if (!header) return;
+
+    const {
+      title = &#39;页面标题&#39;,
+      showBackButton = true,
+      showMenuButton = false,
+      showSearchButton = false,
+      showSearchInput = false,
+      showAddButton = false,
+      showMoreMenu = false,
+      onSearch = null,
+      onAdd = null
+    } = options;
+
+    // Update title
+    const titleElement = header.querySelector(&#39;.header-title&#39;);
+    titleElement.textContent = title;
+
+    // Toggle back button
+    const backBtn = header.querySelector(&#39;.header-back-btn&#39;);
+    const menuBtn = header.querySelector(&#39;.header-menu-btn&#39;);
+    backBtn.style.display = showBackButton ? &#39;flex&#39; : &#39;none&#39;;
+    menuBtn.style.display = showMenuButton ? &#39;flex&#39; : &#39;none&#39;;
+
+    // Toggle search elements
+    const searchBtn = header.querySelector(&#39;.header-search-btn&#39;);
+    const searchInput = header.querySelector(&#39;.header-search&#39;);
+    searchBtn.classList.toggle(&#39;hidden&#39;, !showSearchButton);
+    searchInput.classList.toggle(&#39;hidden&#39;, !showSearchInput);
+    titleElement.classList.toggle(&#39;hidden&#39;, showSearchInput);
+
+    // Toggle add button
+    const addBtn = header.querySelector(&#39;.header-add-btn&#39;);
+    addBtn.classList.toggle(&#39;hidden&#39;, !showAddButton);
+
+    // Toggle more menu
+    const moreMenu = header.querySelector(&#39;.header-more-menu&#39;);
+    moreMenu.classList.toggle(&#39;hidden&#39;, !showMoreMenu);
+
+    // Handle search toggle
+    if (showSearchButton &amp;&amp; !showSearchInput) {
+      searchBtn.onclick = function() {
+        searchInput.classList.remove(&#39;hidden&#39;);
+        titleElement.classList.add(&#39;hidden&#39;);
+        searchBtn.classList.add(&#39;hidden&#39;);
+        const input = searchInput.querySelector(&#39;input&#39;);
+        input.focus();
+      };
+    }
+
+    // Handle search input
+    if (showSearchInput &amp;&amp; onSearch) {
+      const input = searchInput.querySelector(&#39;input&#39;);
+      input.addEventListener(&#39;input&#39;, function(e) {
+        onSearch(e.target.value);
+      });
+    }
+
+    // Handle add button
+    if (showAddButton &amp;&amp; onAdd) {
+      addBtn.onclick = onAdd;
+    }
+  };
+
+  // Drawer toggle function
+  window.toggleDrawer = function() {
+    const drawer = document.querySelector(&#39;[data-section-id="common_drawer"]&#39;);
+    if (drawer) {
+      const drawerToggle = drawer.querySelector(&#39;.drawer-toggle&#39;);
+      if (drawerToggle) {
+        drawerToggle.checked = !drawerToggle.checked;
+      }
+    }
+  };
+
+  // Default header configuration
+  document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    configureHeader();
+  });
+})();
+</script>
+    </div>
+    <main class="pt-14 pb-24 overflow-x-hidden">
+      <section id="ContentDisplaySection" class="bg-base-100 pb-4">
+        <div class="flex items-center gap-3 p-4">
+          <div class="avatar">
+            <div class="w-10 rounded-full">
+              <img alt="发布者头像" class="ip0dj spark-custom-ip0dj" id="ip0dj" data-src="placehold.co/40x40.png?text=User">
+            </div>
+          </div>
+          <div>
+            <div class="font-semibold text-base-content">漫步者-Alex</div>
+            <div class="text-xs text-base-content/60">2小时前</div>
+          </div>
+        </div>
+        <p class="px-4 mb-4 text-base-content leading-relaxed">
+          在城市的喧嚣中发现了一片静谧之地。这条小巷充满了历史的痕迹，每一块砖、每一扇窗都仿佛在诉说着过去的故事。阳光透过斑驳的树影洒下，光影交错，美不胜收。
+        </p>
+        <div class="carousel w-full">
+          <div id="slide1" class="carousel-item relative w-full">
+            <img src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/user-image/2025/9/14/f2655f26-8e72-4b58-99ae-2aac50970130.png" class="w-full i79yz spark-custom-i79yz" alt="小巷风景图1" id="i79yz">
+            <div id="i5ejl" class="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2 i5ejl spark-custom-i5ejl">
+              <a href="#slide2" class="btn btn-circle btn-sm">❮</a><a href="#slide2" id="io6gh" class="btn btn-circle btn-sm io6gh spark-custom-io6gh">❯</a>
+            </div>
+          </div>
+          <div id="slide2" class="carousel-item relative w-full">
+            <img class="w-full" alt="小巷风景图2" data-src="placehold.co/402x226.png?text=Alley+View+2">
+            <div class="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2">
+              <a href="#slide1" class="btn btn-circle btn-sm">❮</a><a href="#slide1" class="btn btn-circle btn-sm">❯</a>
+            </div>
+          </div>
+        </div>
+        <div class="px-4 mt-4">
+          <div class="badge badge-outline gap-1">
+            <span class="iconify" data-icon="heroicons:map-pin" data-width="12"></span>
+            静安区, 文艺小巷
+          </div>
+        </div>
+      </section>
+      <div class="h-2 bg-base-200"></div>
+      <section id="ContentActionsSection" class="bg-base-100 flex items-center justify-around py-2">
+        <button class="btn btn-ghost flex-1 flex flex-col h-auto py-2" onclick="handleLike(this)">
+          <span class="iconify text-xl" data-icon="heroicons:heart"></span><span data-type="like-count" class="text-xs font-normal">108</span>
+        </button>
+        <div class="divider divider-horizontal mx-0"></div>
+        <button class="btn btn-ghost flex-1 flex flex-col h-auto py-2" onclick="handleSave()">
+          <span class="iconify text-xl" data-icon="heroicons:bookmark"></span><span class="text-xs font-normal">保存</span>
+        </button>
+      </section>
+      <div class="h-2 bg-base-200"></div>
+      <div class="bg-base-100 p-4">
+        <section id="ReplyInputSection" class="mb-6" onclick="navigateTo(&#39;reply_to_content&#39;)">
+          <div class="flex items-center gap-3 bg-base-200 rounded-full p-2 cursor-pointer transition hover:bg-base-300/80">
+            <div class="avatar">
+              <div class="w-8 rounded-full">
+                <img alt="我的头像" id="iujc1j" class="i8ajkk iujc1j spark-custom-iujc1j" data-src="placehold.co/32x32.png?text=Me">
+              </div>
+            </div>
+            <span class="text-sm text-base-content/60">点击此处参与回复...</span>
+          </div>
+        </section>
+        <section id="ReplyThreadSection">
+          <h3 class="text-lg font-semibold mb-4">全部回复 (3)</h3>
+          <div class="space-y-6">
+            <div data-repeatable="true" data-type="container" class="flex gap-3">
+              <div class="avatar">
+                <div class="w-10 rounded-full ring-offset-base-100 ring-offset-2">
+                  <img alt="评论者头像" class="iqbgt3 spark-custom-iqbgt3" id="iqbgt3" data-src="placehold.co/40x40.png?text=U1">
+                </div>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold text-base-content">光影捕手</span>
+                    <div class="badge badge-primary badge-xs font-bold">
+                      置顶
+                    </div>
+                  </div>
+                  <span class="text-xs text-base-content/60">1小时前</span>
+                </div>
+                <p class="mt-1 text-base-content/90">
+                  这个地方太有感觉了！求具体定位，周末就去打卡！
+                </p>
+                <div class="flex items-center gap-4 mt-2 text-xs">
+                  <button class="btn btn-xs btn-ghost gap-1" onclick="handleLike(this)">
+                    <span class="iconify" data-icon="heroicons:heart"></span><span data-type="like-count">25</span></button><button class="btn btn-xs btn-ghost" onclick="navigateTo(&#39;reply_to_content&#39;)">
+                    回复
+                  </button>
+                </div>
+                <div class="reply-thread-nested mt-4 space-y-4">
+                  <div data-repeatable="true" data-type="container" class="flex gap-3">
+                    <div class="avatar">
+                      <div class="w-8 rounded-full">
+                        <img alt="回复者头像" data-src="placehold.co/32x32.png?text=U2">
+                      </div>
+                    </div>
+                    <div class="flex-1">
+                      <div class="flex items-center justify-between text-sm">
+                        <span class="font-semibold text-base-content">漫步者-Alex</span><span class="text-xs text-base-content/60">58分钟前</span>
+                      </div>
+                      <p class="mt-1 text-base-content/90">
+                        就在XX路旁边的一个小巷子里，很好找的！
+                      </p>
+                      <div class="flex items-center gap-4 mt-2 text-xs">
+                        <button class="btn btn-xs btn-ghost gap-1" onclick="handleLike(this)">
+                          <span class="iconify" data-icon="heroicons:heart"></span><span data-type="like-count">5</span></button><button class="btn btn-xs btn-ghost" onclick="navigateTo(&#39;reply_to_content&#39;)">
+                          回复
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div data-repeatable="true" data-type="container" class="flex gap-3">
+              <div class="avatar">
+                <div class="w-10 rounded-full">
+                  <img alt="评论者头像" data-src="placehold.co/40x40.png?text=U3">
+                </div>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="font-semibold text-base-content">城市探险家</span><span class="text-xs text-base-content/60">45分钟前</span>
+                </div>
+                <p class="mt-1 text-base-content/90">
+                  好棒的分享，已收藏，感谢！
+                </p>
+                <div class="flex items-center gap-4 mt-2 text-xs">
+                  <button class="btn btn-xs btn-ghost gap-1" onclick="handleLike(this)">
+                    <span class="iconify" data-icon="heroicons:heart"></span><span data-type="like-count">12</span></button><button class="btn btn-xs btn-ghost" onclick="navigateTo(&#39;reply_to_content&#39;)">
+                    回复
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="h-2 bg-base-200"></div>
+      <section id="RelatedRoutesSection" class="bg-base-100 p-4">
+        <h3 class="text-lg font-semibold mb-4">相关Citywalk路线推荐</h3>
+        <div class="space-y-3">
+          <div data-repeatable="true" data-type="container" class="card card-side bg-base-200 shadow-sm cursor-pointer transition hover:shadow-md" onclick="navigateTo(&#39;citywalk_main&#39;)">
+            <figure class="w-24 flex-shrink-0">
+              <img src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/user-image/2025/9/14/d81b52e2-3cf0-4de7-bfaa-5656da00b7ca.jpeg" alt="路线封面1" class="w-full h-full object-cover is3b1g spark-custom-is3b1g" id="is3b1g">
+            </figure>
+            <div class="card-body p-3">
+              <h4 class="card-title text-sm">静安老洋房午后漫步</h4>
+              <p class="text-xs text-base-content/70 mt-1">
+                探索梧桐树下的建筑之美，感受历史的温度。
+              </p>
+            </div>
+          </div>
+          <div data-repeatable="true" data-type="container" class="card card-side bg-base-200 shadow-sm cursor-pointer transition hover:shadow-md" onclick="navigateTo(&#39;citywalk_main&#39;)">
+            <figure class="w-24 flex-shrink-0">
+              <img src="https://spark-builder.s3.cn-north-1.amazonaws.com.cn/user-image/2025/9/14/0f0bb059-42fa-4457-9d1b-e1c27fa22006.jpeg" alt="路线封面2" class="w-full h-full object-cover iz23cg spark-custom-iz23cg" id="iz23cg">
+            </figure>
+            <div class="card-body p-3">
+              <h4 class="card-title text-sm">弄堂里的咖啡香气</h4>
+              <p class="text-xs text-base-content/70 mt-1">
+                穿梭在老上海的巷弄，寻找隐藏的精品咖啡馆。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div class="fixed bottom-0 left-0 right-0 z-40 w-full max-w-[402px] mx-auto">
+      <div data-section-id="common_bottom_dock" data-section-type="common_section" class="fixed bottom-0 left-0 right-0 z-40 bg-base-100 border-t border-base-300 safe-area-bottom">
+  <div id="ib8ikc" class="dock bg-base-100 py-2 px-4 justify-center ib8ikc spark-custom-ib8ikc">
+    <!-- 主页 --><button data-tab-id="citywalk_main" data-type="button" class="dock-item dock-item-active flex-col items-center justify-center touch-target" onclick="navigateTo(&#39;citywalk_main&#39;)">
+      <span class="iconify text-xl mb-1" data-icon="heroicons:map" data-width="24" data-type="icon"></span><span data-type="text" class="dock-item-label text-xs">路线</span></button><!-- 上传内容 --><button data-tab-id="content_upload" data-type="button" id="iznlfk" class="dock-item flex-col items-center justify-center touch-target iznlfk spark-custom-iznlfk" onclick="navigateTo(&#39;content_upload&#39;)">
+      <span class="iconify text-xl mb-1" data-icon="heroicons:plus-circle" data-width="24" data-type="icon"></span><span data-type="text" class="dock-item-label text-xs">上传</span></button><!-- 我的卡册 --><button data-tab-id="my_cards" data-type="button" class="dock-item flex-col items-center justify-center touch-target" onclick="navigateTo(&#39;my_cards&#39;)">
+      <span class="iconify text-xl mb-1" data-icon="heroicons:squares-2x2" data-width="24" data-type="icon"></span><span data-type="text" class="dock-item-label text-xs">卡册</span></button><!-- 个人中心 --><button data-tab-id="user_profile" data-type="button" class="dock-item flex-col items-center justify-center touch-target" onclick="navigateTo(&#39;user_profile&#39;)">
+      <span class="iconify text-xl mb-1" data-icon="heroicons:user" data-width="24" data-type="icon"></span><span data-type="text" class="dock-item-label text-xs">我的</span>
+    </button>
+  </div>
+</div>
+
+    </div>
+    <script>
+/* JavaScript code for common usage, should be wrapped in a closure */
+(function() {
+  // Global app state
+  window.APP_GLOBALS = window.APP_GLOBALS || {};
+
+  // Navigation function for page transitions
+  window.navigateTo = function(targetPageId) {
+    // Trigger navigation to another page using the provided snippet
+    const isInIframe = window.self !== window.top;
+    const targetFileName = `${targetPageId}.html`;
+    
+    if (isInIframe) {
+      window.parent.postMessage({
+        type: &#39;iframeNavigation&#39;,
+        targetPageId: targetPageId
+      }, &#39;*&#39;);
+    } else {
+      window.location.href = targetFileName;
+    }
+  };
+
+  // Utility function to handle back navigation
+  window.handleBackNavigation = function() {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      navigateTo(&#39;citywalk_main&#39;);
+    }
+  };
+
+  // Function to show toast notifications
+  window.showToast = function(message, type = &#39;info&#39;) {
+    const toast = document.createElement(&#39;div&#39;);
+    toast.className = `toast toast-bottom toast-center z-50`;
+    toast.innerHTML = `<div class="alert alert-${type}"><span>${message}</span></div>`;
+    document.body.appendChild(toast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 3000);
+  };
+
+  // Smooth scroll to top function
+  window.scrollToTop = function() {
+    window.scrollTo({
+      top: 0,
+      behavior: &#39;smooth&#39;
+    });
+  };
+
+  // Function to update bottom dock active state
+  window.updateBottomDockActive = function(activeTabId) {
+    const dockItems = document.querySelectorAll(&#39;[data-section-id="common_bottom_dock"] .dock-item&#39;);
+    dockItems.forEach(item => {
+      if (item.dataset.tabId === activeTabId) {
+        item.classList.add(&#39;dock-item-active&#39;);
+      } else {
+        item.classList.remove(&#39;dock-item-active&#39;);
+      }
+    });
+  };
+
+  // Haptic feedback for mobile interactions
+  window.triggerHapticFeedback = function(intensity = &#39;medium&#39;) {
+    if (navigator.vibrate) {
+      const patterns = {
+        light: [10],
+        medium: [25],
+        heavy: [50]
+      };
+      navigator.vibrate(patterns[intensity] || patterns.medium);
+    }
+  };
+
+  // Location service helpers
+  window.APP_GLOBALS.locationService = {
+    getCurrentPosition: function() {
+      return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            position => resolve(position),
+            error => reject(error),
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+          );
+        } else {
+          reject(new Error(&#39;地理位置服务不可用&#39;));
+        }
+      });
+    }
+  };
+
+  // Audio service for gacha effects
+  window.APP_GLOBALS.audioService = {
+    playGachaSound: function() {
+      // Placeholder for gacha sound effect
+      if (window.AudioContext || window.webkitAudioContext) {
+        try {
+          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
+          
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+          
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + 0.3);
+        } catch (e) {
+          console.log(&#39;音频播放不可用&#39;);
+        }
+      }
+    }
+  };
+
+})();
+</script><script>
+document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    configureHeader({
+        title: &#39;内容详情&#39;,
+        showBackButton: true,
+        showMoreMenu: true
+    });
+    
+    // The spec states to reflect the page the user might leave from, which is &#39;citywalk_main&#39;
+    updateBottomDockActive(&#39;citywalk_main&#39;);
+});
+
+function handleLike(buttonElement) {
+    const icon = buttonElement.querySelector(&#39;.iconify&#39;);
+    const countSpan = buttonElement.querySelector(&#39;[data-type="like-count"]&#39;);
+    const isLiked = icon.classList.contains(&#39;text-primary&#39;);
+
+    let currentCount = parseInt(countSpan.textContent, 10);
+
+    if (isLiked) {
+        icon.classList.remove(&#39;text-primary&#39;);
+        currentCount--;
+    } else {
+        icon.classList.add(&#39;text-primary&#39;);
+        currentCount++;
+        triggerHapticFeedback(&#39;light&#39;);
+    }
+    
+    countSpan.textContent = currentCount;
+}
+
+function handleSave() {
+    showToast(&#39;已保存至卡册&#39;, &#39;success&#39;);
+    // The navigation is handled by the onclick attribute for simplicity, as requested by spec.
+    // However, it can also be called here.
+    // navigateTo(&#39;my_cards&#39;);
+}
+
+function handleShare() {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            showToast(&#39;链接已复制到剪贴板&#39;, &#39;info&#39;);
+        }).catch(err => {
+            showToast(&#39;复制失败&#39;, &#39;error&#39;);
+        });
+    } else {
+        showToast(&#39;浏览器不支持复制功能&#39;, &#39;warning&#39;);
+    }
+}
+
+function handleReport() {
+    triggerHapticFeedback(&#39;heavy&#39;);
+    showToast(&#39;举报已提交，我们将尽快处理&#39;, &#39;success&#39;);
+}
+
+// Stub functions referenced in HTML, if any, to prevent errors
+// All interactions are defined above.
+
+</script>
+  
+
+<script>
+    setTimeout(() => {
+      Holder.run({
+        domain: "placehold.co"
+      })
+    }, 100)
+  </script></body></html>'></iframe>
+                    </div>
+                  </div>
+
+                </body>
+                </html>
+            
