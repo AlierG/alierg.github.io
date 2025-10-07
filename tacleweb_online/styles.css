@@ -1,0 +1,370 @@
+/* 整体页面样式 */
+body {
+    font-family: "Noto Sans SC", "Microsoft Yahei", sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+p {
+    margin-bottom: 20px;
+}
+
+/* 控制按钮区域样式 */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.realtime-controls form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.realtime-controls input[type="text"] {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    min-width: 140px;
+}
+
+#connection-status {
+    font-size: 14px;
+    color: #555;
+}
+
+button {
+    padding: 10px 16px;
+    font-size: 15px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #e9e9e9;
+}
+
+.color-picker span {
+    font-weight: bold;
+}
+
+.rotation-controls span {
+    font-weight: bold;
+    min-width: 96px;
+    text-align: center;
+}
+
+/* 棋子数量设置 */
+.inventory-panel {
+    max-width: 960px;
+    margin: 0 auto 24px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.inventory-panel h2 {
+    margin-top: 0;
+    text-align: center;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.inventory-player {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    padding: 12px 16px;
+}
+
+.inventory-player h3 {
+    margin: 0 0 6px 0;
+    text-align: center;
+}
+
+.inventory-player label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+.inventory-player input[type="number"] {
+    width: 80px;
+    padding: 4px;
+}
+
+#inventory-display {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+#inventory-display table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#inventory-display th,
+#inventory-display td {
+    border: 1px solid #ddd;
+    padding: 6px 4px;
+    text-align: center;
+    font-size: 13px;
+}
+
+#inventory-display thead {
+    background-color: #f0f3f6;
+}
+
+/* 新增：主内容区，使用 Flex 布局让调色板和网格并排 */
+.main-content {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+/* 调色板布局 */
+#palette {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 640px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.palette-section {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+    width: 220px;
+}
+
+.palette-section h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+}
+
+.palette-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.palette-cell {
+    width: 60px;
+    height: 60px;
+    background-size: cover;
+    background-position: center;
+    border: 3px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.palette-cell::after {
+    content: attr(data-label);
+}
+
+.palette-cell.selected {
+    border-color: #007bff;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+/* 网格容器 */
+#grid-container {
+    background-image: url('background.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 960px;
+    height: 640px;
+    display: grid;
+    grid-template-columns: repeat(42, 1fr);
+    grid-template-rows: repeat(28, 1fr);
+    border: 2px solid #555;
+    position: relative;
+}
+
+/* 单个网格单元 */
+.grid-cell {
+    background-color: transparent;
+    background-size: 100% 100%;
+    cursor: pointer;
+    position: relative;
+    --tile-color: transparent;
+}
+
+.grid-cell::after,
+.preview-cell::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 2px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+#preview-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.08s ease;
+}
+
+#preview-layer.visible {
+    opacity: 1;
+}
+
+#preview-layer.preview-invalid .preview-cell::after {
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.75) inset;
+}
+
+.preview-cell {
+    position: absolute;
+    pointer-events: none;
+    --tile-color: transparent;
+    display: block;
+}
+
+.preview-cell::after {
+    opacity: 0.7;
+}
+
+.preview-cell.preview-anchor::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40%;
+    height: 40%;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    transform: translate(-50%, -50%);
+    border-radius: 2px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
+}
+
+/* 颜色设置 */
+.color-black {
+    --tile-color: #848080;
+}
+
+.color-red {
+    --tile-color: #c0392b;
+}
+
+.color-blue {
+    --tile-color: #1f60c0;
+}
+
+/* 基础工具 */
+.grid-cell.tile-empty::after {
+    opacity: 0;
+}
+
+.preview-cell.tile-empty::after {
+    opacity: 0.2;
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.tile-obstacle::after {
+    background-image: linear-gradient(45deg, rgba(30, 30, 30, 0.8) 25%, transparent 25%, transparent 50%, rgba(30, 30, 30, 0.8) 50%, rgba(30, 30, 30, 0.8) 75%, transparent 75%, transparent);
+    background-size: 12px 12px;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* 得分块使用 pavement 纹理并根据颜色混合 */
+[class*="tile-score"]::after {
+    background-image: url('pavement.png');
+    background-color: var(--tile-color);
+    background-blend-mode: multiply;
+}
+
+/* 行进盲道使用纯色块并叠加细纹 */
+[class*="tile-walkway"]::after {
+    background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 20%, transparent 20%, transparent 40%, rgba(255, 255, 255, 0.2) 40%, rgba(255, 255, 255, 0.2) 60%, transparent 60%, transparent 80%, rgba(255, 255, 255, 0.2) 80%);
+    background-size: 12px 12px;
+    background-color: var(--tile-color);
+}
+
+/* 提示盲道采用同心纹理 */
+[class*="tile-hint"]::after {
+    background-image: url('tackle_alert.png');
+    background-color: var(--tile-color);
+}
+
+/* 得分块文字颜色稍浅 */
+.palette-cell.tile-score-1,
+.palette-cell.tile-score-2,
+.palette-cell.tile-score-3,
+.palette-cell.tile-score-4,
+.palette-cell.tile-score-5 {
+    color: #fce9b1;
+}
+
+.palette-cell.tile-obstacle {
+    color: #f5f5f5;
+}
+
+/* 响应式处理 */
+@media (max-width: 1200px) {
+    .main-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #palette {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-height: none;
+    }
+
+    .palette-section {
+        width: 180px;
+    }
+}
